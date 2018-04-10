@@ -14,15 +14,19 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 	$userLastName = $_POST['userLastName'];
 	$userEmail = $_POST['userEmail'];
 	$userPassword = $_POST['userPassword'];
-	$userTele = $_POST['userTele'];
+	$userAge = $_POST['userAge'];
 	$userAddress = $_POST['userAddress'];
+	$userCCNum = $_POST['userCCNum'];
 
 	$cleanFirstName = cleanInputs($userFirstName);
 	$cleanLastName = cleanInputs($userLastName);
 	$cleanEmail = cleanInputs($userEmail);
 	$cleanPassword = cleanInputs($userPassword);
-	$cleanTele = cleanInputs($userTele);
+	$cleanAge = cleanInputs($userAge);
 	$cleanAddress = cleanInputs($userAddress);
+	$cleanCCNum = cleanInputs($userCCNum);
+
+	$profile_pic = "";
 
 
 	$serverName = "localhost";
@@ -36,12 +40,21 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 		$conn = new PDO("mysql:host=$serverName;dbname=$dbName",$dbUserName,$dbPassword);
 		$conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-		$sql = "INSERT INTO newusers (userEmail,userFName,userLName,userTele,userAddress,userPassword) VALUES 
-		('$cleanEmail','$cleanFirstName','$cleanLastName','$cleanTele','$cleanAddress','$cleanPassword')";
+		$sql = "INSERT INTO customer (userName,firstName,lastName,age,mailAddress,credit_card_Num, profile_pic) VALUES 
+		('$cleanEmail','$cleanFirstName','$cleanLastName','$cleanAge','$cleanAddress','$cleanCCNum', '$profilePic')";
+
+		$sql2 = "INSERT INTO customer_login (userName,password) VALUES 
+		('$cleanEmail','$cleanPassword')";
 
 		$conn->exec($sql);
+		$conn->exec($sql2);
 
-		echo "Record added";
+		echo '<div class="alert alert-success">
+		  <strong>Success!</strong> Record Added
+		</div>';
+
+		header('Refresh: 2; URL=index.php');
+
  }catch(PDOException $e){
  	echo $sql. "<br>" . $e->getMessage();
  }
@@ -88,6 +101,11 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 	                                <div class="form-group">
 	                                    <input id="passwordInput" placeholder="Password" class="form-control form-control-sm" type="text" required="">
 	                                </div>
+	                                <div class="form-check">
+								    <input type="checkbox" class="form-check-input" id="exampleCheck1">
+								    <label class="form-check-label" for="exampleCheck1">Remember Me</label>
+								  </div>
+								  <br>
 	                                <div class="form-group">
 	                                    <button type="submit" class="btn btn-primary btn-block">Login</button>
 	                                </div>
@@ -140,8 +158,11 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 		  </div>
 		  <br>
 		  <div class="form-row">
-		    <div class="col">
-		      <input type="text" class="form-control" placeholder="Telephone" name="userTele">
+		    <div class="col-6">
+		      <input type="number" class="form-control" placeholder="Age" name="userAge" min="1">
+		    </div>
+		    <div class="col-6">
+		      <input type="text" class="form-control" placeholder="Credit Card Number" name="userCCNum">
 		    </div>
 		  </div>
 		  <br>

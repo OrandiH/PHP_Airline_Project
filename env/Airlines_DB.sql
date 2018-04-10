@@ -22,6 +22,12 @@ SET time_zone = "+00:00";
 -- Database: `Airlines_DB`
 --
 
+-- Create Database
+
+CREATE DATABASE Airlines_DB;
+
+-- Set As Active Database
+
 -- --------------------------------------------------------
 
 --
