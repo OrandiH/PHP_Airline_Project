@@ -122,7 +122,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 	        </div>
 	    </div>
 	</nav>
-
+	
 <!-- Modal -->
 <div class="modal" id="registerModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog" role="document">
@@ -134,7 +134,8 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
         </button>
       </div>
       <div class="modal-body">
-
+		
+		<!-- form starts here -->
       	<form action="index.php" method="POST">
 		  <div class="form-row">
 		    <div class="col-6">
