@@ -1,5 +1,28 @@
 <?php
+session_start();
 
+//Define empty variables for errors
+$fNameErr = "";
+$passwdErr = "";
+$LNameErr = "";
+$emailErr = "";
+$ageErr = "";
+$addressErr = "";
+$ccNumErr = "";
+$Val = 0; 
+$errFlag = 0; //This is needed to identify errors
+
+//Define variables for database access
+$serverName = "localhost";
+$dbUserName = "root";
+$dbPassword = "";
+$dbName = "Airlines_db";
+
+//Variables to store hashed values
+$hash_password = "";
+$hash_creditNum = "";
+
+//Function to clean inputs received from form
 function cleanInputs($value){
 
 	$value = trim($value);
@@ -8,8 +31,51 @@ function cleanInputs($value){
 	return $value;
 }	
 
-if($_SERVER["REQUEST_METHOD"] == "POST"){
+function processFormData($value1,$value2,$value3,$value4,$value5,$value6,$value7,$errFlag){
+	$response= 0;//Initializing $response variable
+	if($value1=="" && $value2 =="" && $value3 == "" && $value4 == "" && $value5 == "" && $value6 == "" && $value7 == "")
+		{
+			return $response; //If the values are empty return 0 
+		}else if($errFlag == 1){
+			return $response; //IF an error occurs return the value in $response
+		}
+		else{
+			$response = 1;//If the response is 1 set session values
+			$_SESSION['user_info'] = array(
+			'userFirstName' => $value1, 
+			'userLastName' => $value2,
+			'userPassword' => $value3,
+			'userEmail' => $value4,
+			'userAge' => $value5,
+			'userAddress' => $value6,
+			'userCreditCrdNum' => $value7
+			);
+			return $response;//Return response value
+		}
+}
+//Verify length of password user submits
+function verifyPasswordLength($value)
+{
+	if(strlen($value) < 8)
+	{
+		$passwdErr = "Password is too short,password must be 8 characters";
+		$errFlag = 1;
+	}
+	else if (strlen($value) > 8) 
+	 {
+		$passwdErr = "Password is too long,password must be 8 characters at least";
+		$errFlag = 1;
+	}
+	else{
+		$passwdErr = "";
+	}
+	return $passwdErr;
+}
 
+
+if($_SERVER["REQUEST_METHOD"] == "POST"){
+	if(isset($_POST['registerBtn'])){
+			//Collect form data here
 	$userFirstName = $_POST['userFirstName'];
 	$userLastName = $_POST['userLastName'];
 	$userEmail = $_POST['userEmail'];
@@ -18,7 +84,11 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 	$userAddress = $_POST['userAddress'];
 	$userCCNum = $_POST['userCCNum'];
 
+<<<<<<< HEAD
 	
+=======
+	//First level of sanitation here
+>>>>>>> 4ec288c3878f62821570b12929ef09c17b031e86
 	$cleanFirstName = cleanInputs($userFirstName);
 	$cleanLastName = cleanInputs($userLastName);
 	$cleanEmail = cleanInputs($userEmail);
@@ -26,30 +96,81 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 	$cleanAge = cleanInputs($userAge);
 	$cleanAddress = cleanInputs($userAddress);
 	$cleanCCNum = cleanInputs($userCCNum);
+<<<<<<< HEAD
 	
+=======
 
-	$serverName = "localhost";
-	$dbUserName = "root";
-	$dbPassword = "";
-	$dbName = "Airlines_db";
+	$profile_pic = ""; //to be used for bonus marks
 
+	$passwdErr = verifyPasswordLength($cleanPassword);
+>>>>>>> 4ec288c3878f62821570b12929ef09c17b031e86
+
+	$hash_creditNum = md5($cleanCCNum);
+	$hash_password = password_hash($cleanPassword,PASSWORD_DEFAULT);
+
+<<<<<<< HEAD
 
 	$profilePic = "";
 
 
 
 	//Connect to DB and enter data
+=======
+	//Validate username
+	if(!preg_match("/^([A-Z]{1})([A-Za-z-])?/", $cleanFirstName))
+	{
+		$nameErr = "Firstname is invalid";
+		$errFlag = 1;
+	}
+	//Validate full name
+	if(!preg_match("/^([A-Z]{1})([A-Za-z-])?/", $cleanLastName))
+	{
+		$wholeNameErr = "Lastname is invalid";
+		$errFlag = 1;
+	}
+	//Validate email
+	if(!filter_var($cleanUserEmail,FILTER_VALIDATE_EMAIL))
+	{
+		$emailErr = "Email is invalid";
+		$errFlag = 1;
+	}
+	//Validate address
+	if(!preg_match("/^[0-9a-zA-Z,. ]+/", $cleanAddress))
+	{
+		$addressErr = "Address is invalid";
+		$errFlag = 1;
+	}
+	//Validate age
+	if(!filter_var($cleanAge,FILTER_VALIDATE_INT))
+	{
+		$ageErr = "Age is invalid";
+		$errFlag = 1;
+	}
+	//Validate credit card num
+	if(!preg_match("^(?:4[0-9]{12}(?:[0-9]{3})?",$cleanCCNum)){
+		$ccNumErr = "Credit card isn't valid";
+		$errFlag = 1;
+	}
+>>>>>>> 4ec288c3878f62821570b12929ef09c17b031e86
 
+	//Pass in validated information
+	$Val = process_customer_query($cleanFirstName,$cleanLastName,$cleanPassword
+	,$cleanEmail,$cleanAge,$cleanAddress,$cleanCCNum,$errFlag);
+
+	//Connect to DB and enter data
 	try{
+		//Set DB connection
 		$conn = new PDO("mysql:host=$serverName;dbname=$dbName",$dbUserName,$dbPassword);
 		$conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
+		//Set queries for inserting into DB
 		$sql = "INSERT INTO customer (userName,firstName,lastName,age,mailAddress,credit_card_Num, profile_pic) VALUES 
-		('$cleanEmail','$cleanFirstName','$cleanLastName','$cleanAge','$cleanAddress','$cleanCCNum', '$profilePic')";
+		('$cleanEmail','$cleanFirstName','$cleanLastName','$cleanAge','$cleanAddress','$hash_creditNum', '$profilePic')";
 
 		$sql2 = "INSERT INTO customer_login (userName,password) VALUES 
-		('$cleanEmail','$cleanPassword')";
+		('$cleanEmail','$hash_password')";
 
+		//Execute statements
 		$conn->exec($sql);
 		$conn->exec($sql2);
 
@@ -60,14 +181,13 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 		//header('Refresh: 2; URL=index.php');
 
  }catch(PDOException $e){
- 	echo $sql. "<br>" . $e->getMessage();
- }
- $conn = null;//Close connection to db
-}
+ 			echo $sql. "<br>" . $e->getMessage();
+		}
+ 		$conn = null;//Close connection to db
+		}
+	}
 
 ?>
-
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -140,7 +260,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
       <div class="modal-body">
 		
 		<!-- form starts here -->
-      	<form action="index.php" method="POST">
+      	<form action="<?php echo htmlentities($_SERVER['PHP_SELF']); ?>" method="POST">
 		  <div class="form-row">
 		    <div class="col-6">
 		    <input type="text" class="form-control" placeholder="First Name" name="userFirstName">
@@ -185,15 +305,14 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 		  </div>
 		  <br>
 		 <div class="d-flex justify-content-between">
+		 <button type="button float-right" class="btn btn-primary" href="#" id="registerBtn">Register</button>
 		  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-  		<button type="button float-right" class="btn btn-primary" href="#">Register</button>
 		</div>
 		</form>
-
       </div>
       <div class="modal-footer">
-        
-      </div>
+			
+			</div>
     </div>
   </div>
 </div>
