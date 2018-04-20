@@ -84,11 +84,8 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 	$userAddress = $_POST['userAddress'];
 	$userCCNum = $_POST['userCCNum'];
 
-<<<<<<< HEAD
 	
-=======
 	//First level of sanitation here
->>>>>>> 4ec288c3878f62821570b12929ef09c17b031e86
 	$cleanFirstName = cleanInputs($userFirstName);
 	$cleanLastName = cleanInputs($userLastName);
 	$cleanEmail = cleanInputs($userEmail);
@@ -96,26 +93,20 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 	$cleanAge = cleanInputs($userAge);
 	$cleanAddress = cleanInputs($userAddress);
 	$cleanCCNum = cleanInputs($userCCNum);
-<<<<<<< HEAD
-	
-=======
 
 	$profile_pic = ""; //to be used for bonus marks
 
 	$passwdErr = verifyPasswordLength($cleanPassword);
->>>>>>> 4ec288c3878f62821570b12929ef09c17b031e86
 
 	$hash_creditNum = md5($cleanCCNum);
 	$hash_password = password_hash($cleanPassword,PASSWORD_DEFAULT);
 
-<<<<<<< HEAD
 
 	$profilePic = "";
 
 
 
 	//Connect to DB and enter data
-=======
 	//Validate username
 	if(!preg_match("/^([A-Z]{1})([A-Za-z-])?/", $cleanFirstName))
 	{
@@ -151,7 +142,6 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 		$ccNumErr = "Credit card isn't valid";
 		$errFlag = 1;
 	}
->>>>>>> 4ec288c3878f62821570b12929ef09c17b031e86
 
 	//Pass in validated information
 	$Val = process_customer_query($cleanFirstName,$cleanLastName,$cleanPassword
