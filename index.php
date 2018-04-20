@@ -18,6 +18,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 	$userAddress = $_POST['userAddress'];
 	$userCCNum = $_POST['userCCNum'];
 
+	
 	$cleanFirstName = cleanInputs($userFirstName);
 	$cleanLastName = cleanInputs($userLastName);
 	$cleanEmail = cleanInputs($userEmail);
@@ -25,14 +26,17 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 	$cleanAge = cleanInputs($userAge);
 	$cleanAddress = cleanInputs($userAddress);
 	$cleanCCNum = cleanInputs($userCCNum);
-
-	$profile_pic = "";
-
+	
 
 	$serverName = "localhost";
 	$dbUserName = "root";
 	$dbPassword = "";
 	$dbName = "Airlines_db";
+
+
+	$profilePic = "";
+
+
 
 	//Connect to DB and enter data
 
@@ -53,7 +57,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 		  <strong>Success!</strong> Record Added
 		</div>';
 
-		header('Refresh: 2; URL=index.php');
+		//header('Refresh: 2; URL=index.php');
 
  }catch(PDOException $e){
  	echo $sql. "<br>" . $e->getMessage();
@@ -173,6 +177,13 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 		    </div>
 		  </div>
 		  <br>
+		  <div class="form-row">
+		    <div class="col">
+				<img id="blah" src="http://placehold.it/180" alt="your image" />
+				<input type='file' onchange="readURL(this);" name="profilePic">
+		    </div>
+		  </div>
+		  <br>
 		 <div class="d-flex justify-content-between">
 		  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
   		<button type="button float-right" class="btn btn-primary" href="#">Register</button>
@@ -195,11 +206,11 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 					<center>
 					<div class="btn-group btn-group-toggle btn-primary" data-toggle="buttons">
 					  <label class="btn btn-primary active">
-					    <input type="radio" name="tripType" id="option1" autocomplete="off" checked> Round Trip
+					    <input type="radio" name="tripType" id="option1" autocomplete="off" checked onChange="disablefield();"> Round Trip
 					  </label>
 					  <br>
 					  <label class="btn btn-primary">
-					    <input type="radio" name="tripType" id="option2" autocomplete="off"> One Way
+					    <input type="radio" name="tripType" id="option2" autocomplete="off" onChange="disablefield();"> One Way
 					  </label>
 					</div>
 					</center>
@@ -225,7 +236,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 		    </div>
 		    <div class="col-6">
 		    	Return
-		      <input type="date" class="form-control return" style="width: 100%" name="returnDate">
+		      <input type="date" id="returnDate" class="form-control return" style="width: 100%" name="returnDate">
 		    </div>
 		  </div>
 		  <br>
@@ -249,6 +260,30 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+	<script type="text/javascript"> 
+
+		function disablefield(){ 
+			if (document.getElementById('option2').checked == 1){ 
+				document.getElementById('returnDate').disabled='disabled';
+				document.getElementById('returnDate').value='disabled'; 
+			}else{ 
+				document.getElementById('returnDate').disabled=''; 
+				document.getElementById('returnDate').value='Allowed';
+			} 
+		}
+
+		function readURL(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    $('#blah')
+                        .attr('src', e.target.result);
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        } 
+	</script>
 
 </body>
 </html>
