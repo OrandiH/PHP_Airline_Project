@@ -76,7 +76,7 @@ CREATE TABLE `Customer_Login` (
 CREATE TABLE `Customer_Payment` (
   `userName` varchar(50) NOT NULL,
   `confirmationNum` int(11) NOT NULL,
-  `amount_received` float NOT NULL
+  `amount_received` decimal(10, 2) NOT NULL -- specify 2 decimal points
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
@@ -87,6 +87,7 @@ CREATE TABLE `Customer_Payment` (
 
 CREATE TABLE `Flight` (
   `flightID` varchar(30) NOT NULL,
+  `flightName` varchar(30) NOT NULL, -- add flight name
   `depatureCity` varchar(30) NOT NULL,
   `destinationCity` varchar(30) NOT NULL,
   `depatureDate` date NOT NULL,
@@ -102,7 +103,7 @@ CREATE TABLE `Flight` (
 
 CREATE TABLE `Flight_Cost` (
   `flightID` varchar(30) NOT NULL,
-  `cost` float NOT NULL
+  `cost` decimal(10, 2) NOT NULL specify 2 decimal points
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
