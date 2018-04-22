@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Apr 08, 2018 at 09:49 PM
+-- Generation Time: Apr 16, 2018 at 04:06 AM
 -- Server version: 10.1.31-MariaDB
 -- PHP Version: 7.0.28
 
@@ -21,12 +21,8 @@ SET time_zone = "+00:00";
 --
 -- Database: `Airlines_DB`
 --
-
--- Create Database
-
-CREATE DATABASE Airlines_DB;
-
--- Set As Active Database
+CREATE DATABASE IF NOT EXISTS `Airlines_DB` DEFAULT CHARACTER SET latin1 COLLATE latin1_swedish_ci;
+USE `Airlines_DB`;
 
 -- --------------------------------------------------------
 
