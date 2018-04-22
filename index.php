@@ -389,5 +389,29 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
         } 
 	</script>
 
+	<script type="text/javascript"> 
+
+		function disablefield(){ 
+			if (document.getElementById('option2').checked == 1){ 
+				document.getElementById('returnDate').disabled='disabled';
+				document.getElementById('returnDate').value='disabled'; 
+			}else{ 
+				document.getElementById('returnDate').disabled=''; 
+				document.getElementById('returnDate').value='Allowed';
+			} 
+		}
+
+		function readURL(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    $('#blah')
+                        .attr('src', e.target.result);
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        } 
+	</script>
+
 </body>
 </html>

@@ -30,7 +30,7 @@
 				</button>
 				<div class="collapse navbar-collapse" id="exCollapsingNavbar">
 					<ul class="nav navbar-nav flex-row justify-content-between ml-auto">
-						<li class="nav-item"><a href="index.php" class="nav-link">Return to Home</a></li>
+						<li class="nav-item"><a href="index.php" class="nav-link">View Profile</a></li>
 					</ul>
 				</div>
 			</div>
@@ -40,62 +40,92 @@
 	<!-- form starts here -->
 	<form action="bookFlight.php" method="POST">
 		<?php
-		
+			//calculate discount if user exist
 			function processDiscount($payment)
 			{
 				$discount = $payment * 0.2;
 				return $discount;
 			} //end processDiscount	
-			
-			
+				
 			//database connection
 			include("connection.php");
 			//local variables
-			$depCit = $desCity = $discount = $msg = "";
-		
-			$depCit = trim($_POST['username']);
-			$desCity = trim($_POST['password']);
+			$depCit = $desCity = $dDate = $msg = "";
 			
+			//set values 
+			$depCit = $_SESSION['depatureCity'];
+			$desCity = $_SESSION['depatureCity'];
+			$dDate =  $_SESSION['depatureDate'];
 			
-			if($username != "" && $password != "") {
-			try {
-				//search database for user
-				$query = "select * from flight where depatureCity='$username' and UserPsswd='$password'";					
-				$stmt = $conn->prepare($query);
-				$stmt->bindParam('Username', $username, PDO::PARAM_STR);
-				$stmt->bindValue('Password', $password, PDO::PARAM_STR);
-				$stmt->execute();
-				$count = $stmt->rowCount();
-				$row   = $stmt->fetch(PDO::FETCH_ASSOC);
-			  
-				//validates if user was found
-				if($count == 1 && !empty($row)) 
-				{
-					/******************** Connection code ***********************/
-					$_SESSION['sess_user'] = $row['username'];
-					$msg = "<label style='color:green'>".$username." you have logged in successfully...!</label>";
-					header("location:MyProfile.php");
-				}
-				else
-				{
-					$msg = '<label style="color:red">Invalid username or password...!</label>';
-				} //end else
-							
-					//close database connection
-				$conn = null;
-				} 
-					catch (PDOException $e) 
-				{
-					echo "Error : ".$e->getMessage();
-				} //end catch
+			if($depCit != "" && $desCity != "" && $desCity != "") 
+			{
+				try {
+					//search database for user
+					$query = "select * from flight where depatureCity='$depCit' and destinationCity='$desCity' and depatureDate='$dDate'";					
+					$stmt = $conn->prepare($query);
+					$stmt->bindParam('depatureCity', $depCit, PDO::PARAM_STR);
+					$stmt->bindValue('destinationCity', $desCity, PDO::PARAM_STR);
+					$stmt->bindValue('depatureDate', $dDate, PDO::PARAM_STR);
+					$stmt->execute();
+					$count = $stmt->rowCount();
+					$row   = $stmt->fetch(PDO::FETCH_ASSOC);
+				  
+					//validates if user was found
+					if($count > 0 && !empty($row)) 
+					{
+						/******************** Display available flights***********************/
+						$msg = "<label style='color:green'> Choose your flight option...!</label>";
+						echo $msg;
+						//Database starts here -->
+						echo "<table>
+							<tr>
+								<th>FLIGHT ID</th> 
+								<th>FLIGHT NAME</th> 
+								<th>DEPATURE CITY</th>
+								<th>DESTINATION CITY</th>
+								<th>DEPATUREDATE</th>
+								<th>RETURNDATE</th>
+								<th>AMOUNTOFSEATS</th>
+							</tr>";
+							// output data of each row
+							while($row   = $stmt->fetch(PDO::FETCH_ASSOC)) 
+						    {
+								echo "<tr>"
+										"<td>" . $row["flightID"] . "</td>"
+										"<td>" . $row["flightName"] . "</td>"
+										"<td>" . $row["depatureCity"]. "</td>"
+										"<td>" . $row["destinationCity"]. "</td>"
+										"<td>" . $row["depatureDate"]. "</td>"
+										"<td>" . $row["returnDate"]. "</td>"
+										"<td>" . $row["AmountOfSeats"]. "</td>"
+									"</tr>";
+							} //end while
+						echo "</table>";
+						
+						//header("location:MyProfile.php");
+					}
+					else
+					{
+						$msg = '<label style="color:red">No flights are available for that date...!</label>';
+					} //end else
+								
+						//close database connection
+					$conn = null;
+					} 
+						catch (PDOException $e) 
+					{
+						$msg = "Error : ".$e->getMessage();
+					} //end catch
 				}  //end if
 				else 
 				{
-					$msg = '<label style="color:gold">Username and password are required...!</label>';
+					$msg = '<label style="color:red">You MUST enter fligh details first...!</label>';
 				} //end else	
+				
+				echo"<br>";
+				echo $msg;
 	?>
-	
-	
+
 	
 	<!---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------> 
 	<!-- Bootstrap Script Links --> 
