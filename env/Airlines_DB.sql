@@ -1,11 +1,13 @@
 -- phpMyAdmin SQL Dump
--- version 4.7.9
+-- version 4.7.4
 -- https://www.phpmyadmin.net/
 --
--- Host: localhost
--- Generation Time: Apr 16, 2018 at 04:06 AM
--- Server version: 10.1.31-MariaDB
--- PHP Version: 7.0.28
+-- Host: 127.0.0.1:3306
+-- Generation Time: Apr 22, 2018 at 02:40 AM
+-- Server version: 5.7.19
+-- PHP Version: 5.6.31
+
+CREATE DATABASE airlines_db;
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET AUTOCOMMIT = 0;
@@ -19,161 +21,145 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `Airlines_DB`
+-- Database: `airlines_db`
 --
-CREATE DATABASE IF NOT EXISTS `Airlines_DB` DEFAULT CHARACTER SET latin1 COLLATE latin1_swedish_ci;
-USE `Airlines_DB`;
+
+-- --------------------------------------------------------
+USE airlines_db;
+--
+-- Table structure for table `admin`
+--
+
+DROP TABLE IF EXISTS `admin`;
+CREATE TABLE IF NOT EXISTS `admin` (
+  `username` varchar(50) NOT NULL,
+  `password` varchar(100) NOT NULL,
+  `firstname` varchar(50) NOT NULL,
+  `lastname` varchar(50) NOT NULL,
+  `age` int(11) NOT NULL,
+  PRIMARY KEY (`username`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `admin`
+--
+
+INSERT INTO `admin` (`username`, `password`, `firstname`, `lastname`, `age`) VALUES
+('web@gmail.com', '$2y$10$xWeicZFfBBXUu/NqC/5CkuDQs0DOCO/zKCOHKLx/2ClaLLmga9EFC', 'web', 'class', 25);
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `Booked_Flights`
+-- Table structure for table `booked_flights`
 --
 
-CREATE TABLE `Booked_Flights` (
-  `BookingID` int(11) NOT NULL,
-  `flightID` int(30) NOT NULL,
-  `userName` int(50) NOT NULL
+DROP TABLE IF EXISTS `booked_flights`;
+CREATE TABLE IF NOT EXISTS `booked_flights` (
+  `BookingID` int(11) NOT NULL AUTO_INCREMENT,
+  `flightID` varchar(30),
+  `userName` int(50) NOT NULL,
+  PRIMARY KEY (`BookingID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `Customer`
+-- Table structure for table `customer`
 --
 
-CREATE TABLE `Customer` (
+DROP TABLE IF EXISTS `customer`;
+CREATE TABLE IF NOT EXISTS `customer` (
   `userName` varchar(50) NOT NULL,
   `firstName` varchar(50) NOT NULL,
   `lastName` varchar(50) NOT NULL,
   `age` int(11) NOT NULL,
   `mailAddress` varchar(100) NOT NULL,
   `credit_card_Num` varchar(150) NOT NULL,
-  `profile_pic` varchar(150) NOT NULL
+  `profile_pic` varchar(150) NOT NULL,
+  PRIMARY KEY (`userName`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `Customer_Login`
+-- Table structure for table `customer_login`
 --
 
-CREATE TABLE `Customer_Login` (
+DROP TABLE IF EXISTS `customer_login`;
+CREATE TABLE IF NOT EXISTS `customer_login` (
   `userName` varchar(50) NOT NULL,
-  `password` varchar(150) NOT NULL
+  `password` varchar(150) NOT NULL,
+  PRIMARY KEY (`userName`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `Customer_Payment`
+-- Table structure for table `customer_payment`
 --
 
-CREATE TABLE `Customer_Payment` (
+DROP TABLE IF EXISTS `customer_payment`;
+CREATE TABLE IF NOT EXISTS `customer_payment` (
   `userName` varchar(50) NOT NULL,
   `confirmationNum` int(11) NOT NULL,
-  `amount_received` decimal(10, 2) NOT NULL -- specify 2 decimal points
+  `amount_received` float NOT NULL,
+  PRIMARY KEY (`userName`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `Flight`
+-- Table structure for table `flight`
 --
 
-CREATE TABLE `Flight` (
-  `flightID` varchar(30) NOT NULL,
-  `flightName` varchar(30) NOT NULL, -- add flight name
+DROP TABLE IF EXISTS `flight`;
+CREATE TABLE IF NOT EXISTS `flight` (
+  `flightID` varchar(30),
+  `flightName` varchar(30) NOT NULL,
   `depatureCity` varchar(30) NOT NULL,
   `destinationCity` varchar(30) NOT NULL,
   `depatureDate` date NOT NULL,
   `returnDate` date NOT NULL,
-  `AmountOfSeats` int(11) NOT NULL
+  `AmountOfSeats` int(11) NOT NULL,
+  PRIMARY KEY (`flightID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `Flight_Cost`
+-- Table structure for table `flight_cost`
 --
 
-CREATE TABLE `Flight_Cost` (
+DROP TABLE IF EXISTS `flight_cost`;
+CREATE TABLE IF NOT EXISTS `flight_cost` (
   `flightID` varchar(30) NOT NULL,
-  `cost` decimal(10, 2) NOT NULL specify 2 decimal points
+  `cost` float NOT NULL,
+  PRIMARY KEY (`flightID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
---
--- Indexes for dumped tables
---
-
---
--- Indexes for table `Booked_Flights`
---
-ALTER TABLE `Booked_Flights`
-  ADD PRIMARY KEY (`BookingID`);
-
---
--- Indexes for table `Customer`
---
-ALTER TABLE `Customer`
-  ADD PRIMARY KEY (`userName`);
-
---
--- Indexes for table `Customer_Login`
---
-ALTER TABLE `Customer_Login`
-  ADD PRIMARY KEY (`userName`);
-
---
--- Indexes for table `Customer_Payment`
---
-ALTER TABLE `Customer_Payment`
-  ADD PRIMARY KEY (`userName`);
-
---
--- Indexes for table `Flight`
---
-ALTER TABLE `Flight`
-  ADD PRIMARY KEY (`flightID`);
-
---
--- Indexes for table `Flight_Cost`
---
-ALTER TABLE `Flight_Cost`
-  ADD PRIMARY KEY (`flightID`);
-
---
--- AUTO_INCREMENT for dumped tables
---
-
---
--- AUTO_INCREMENT for table `Booked_Flights`
---
-ALTER TABLE `Booked_Flights`
-  MODIFY `BookingID` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- Constraints for dumped tables
 --
 
 --
--- Constraints for table `Customer_Login`
+-- Constraints for table `customer_login`
 --
-ALTER TABLE `Customer_Login`
-  ADD CONSTRAINT `FK_Username` FOREIGN KEY (`userName`) REFERENCES `Customer` (`userName`);
+ALTER TABLE `customer_login`
+  ADD CONSTRAINT `FK_Username` FOREIGN KEY (`userName`) REFERENCES `customer` (`userName`);
 
 --
--- Constraints for table `Customer_Payment`
+-- Constraints for table `customer_payment`
 --
-ALTER TABLE `Customer_Payment`
-  ADD CONSTRAINT `FK_Username_Payment` FOREIGN KEY (`userName`) REFERENCES `Customer` (`userName`);
+ALTER TABLE `customer_payment`
+  ADD CONSTRAINT `FK_Username_Payment` FOREIGN KEY (`userName`) REFERENCES `customer` (`userName`);
 
 --
--- Constraints for table `Flight_Cost`
+-- Constraints for table `flight_cost`
 --
-ALTER TABLE `Flight_Cost`
-  ADD CONSTRAINT `FK_FlightID_Cost` FOREIGN KEY (`flightID`) REFERENCES `Flight` (`flightID`);
+ALTER TABLE `flight_cost`
+  ADD CONSTRAINT `FK_FlightID_Cost` FOREIGN KEY (`flightID`) REFERENCES `flight` (`flightID`);
 COMMIT;
+
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
