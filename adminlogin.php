@@ -22,7 +22,7 @@
 		    <div class="card-body">
 		      <div class="row">
 		        <div class="col">
-		          <form class="form-signin">
+		          <form class="form-signin" action = 'adminlogin' method = 'POST'>
 		            <input type="text" class="form-control mb-2" placeholder="UserID" name="adminId" required autofocus>
 		            <input type="password" class="form-control mb-2" placeholder="Password" name="adminPassword" required>
 		            <button class="btn btn-lg btn-primary btn-block mb-1" type="submit">Log in</button>
@@ -47,6 +47,7 @@
 	$value = stripcslashes($value);
 	$value = htmlspecialchars($value);
 	return $value;
+	}
 
 	if($_SERVER["REQUEST_METHOD"] == "POST"){
 
@@ -55,11 +56,56 @@
 
 	$cleanID = cleanInputs($adminId);
 	$cleanPassword = cleanInputs($adminPassword);
+	
+
+	 $servername = "localhost";
+		$dbUsername = "root";
+		$dbPassword = "";
+		$dbName = "airlines_db"; 
+
+		try{
+			$pdo = new PDO("mysql:host=$servername;dbname=$dbName",$dbUsername,$dbPassword);
+			//set the PDO error mode to exception
+			$pdo->setAttribute(PDO::ATTR_ERRMODE,PDO::ERRMODE_EXCEPTION);
+		
+			//set the default PDO fetch mode to Object
+			$pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE,PDO::FETCH_OBJ);
+	
+		
+			//set SQL statement using named parameters
+			$sql = 'SELECT * FROM admin WHERE username = :username';
+			$stmt = $pdo->prepare($sql);
+			$stmt->execute(['username'=> $cleanID]);
+			$users = $stmt->fetchAll(); 
+			$userCount = $stmt->rowCount();
+		  if($userCount == 1){
+				$pass = $users[0]-> password;
+				$name = $users[0]-> firstname;
+				if(password_verify($cleanPassword, $pass)){
+					$_SESSION["admin_name"] = $name;
+					echo ("<script LANGUAGE='JavaScript'>
+					window.alert('WELCOME, ADMIN SPLASH PAGE SHOULD BE NEXT');
+					</script>");
+					//header('Location:ADMINSLASH.php');
+				}
+
+			}
+			else
+			{
+				echo ("<script LANGUAGE='JavaScript'>
+				window.alert('PLEASE CHECK YOUR USERNAME OR PASSWORD');
+				</script>");
+			}
+		}
+		catch(PDOException $e)
+		{
+			echo $sql."<br />". $e->getMessage();
+		}
+		
+		$stmt = null;
+		$pdo = null;
+	}
 
 
-}
-
-
-}	
-
+	
 ?>
