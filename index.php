@@ -373,11 +373,30 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 	</div>
 
 	</div>
-	
-	<!-- Bootstrap Script Links --> 
-	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+	<script type="text/javascript"> 
+
+		function disablefield(){ 
+			if (document.getElementById('option2').checked == 1){ 
+				document.getElementById('returnDate').disabled='disabled';
+				document.getElementById('returnDate').value='disabled'; 
+			}else{ 
+				document.getElementById('returnDate').disabled=''; 
+				document.getElementById('returnDate').value='Allowed';
+			} 
+		}
+
+		function readURL(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    $('#blah')
+                        .attr('src', e.target.result);
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        } 
+	</script>
 
 <!--The script below is to show the preview of the user profile-->
 	<script type="text/javascript"> 

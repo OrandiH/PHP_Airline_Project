@@ -6,6 +6,11 @@
 -- Generation Time: Apr 22, 2018 at 02:40 AM
 -- Server version: 5.7.19
 -- PHP Version: 5.6.31
+<<<<<<< HEAD
+
+CREATE DATABASE airlines_db;
+=======
+>>>>>>> 871c9e325be812fb1edcb4aa82e928d7f954681d
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET AUTOCOMMIT = 0;
@@ -20,6 +25,30 @@ SET time_zone = "+00:00";
 
 --
 -- Database: `airlines_db`
+<<<<<<< HEAD
+--
+
+-- --------------------------------------------------------
+USE airlines_db;
+--
+-- Table structure for table `admin`
+--
+
+DROP TABLE IF EXISTS `admin`;
+CREATE TABLE IF NOT EXISTS `admin` (
+  `username` varchar(50) NOT NULL,
+  `password` varchar(100) NOT NULL,
+  `firstname` varchar(50) NOT NULL,
+  `lastname` varchar(50) NOT NULL,
+  `age` int(11) NOT NULL,
+  PRIMARY KEY (`username`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `admin`
+--
+
+=======
 --
 
 -- --------------------------------------------------------
@@ -42,6 +71,7 @@ CREATE TABLE IF NOT EXISTS `admin` (
 -- Dumping data for table `admin`
 --
 
+>>>>>>> 871c9e325be812fb1edcb4aa82e928d7f954681d
 INSERT INTO `admin` (`username`, `password`, `firstname`, `lastname`, `age`) VALUES
 ('web@gmail.com', '$2y$10$xWeicZFfBBXUu/NqC/5CkuDQs0DOCO/zKCOHKLx/2ClaLLmga9EFC', 'web', 'class', 25);
 
@@ -54,7 +84,11 @@ INSERT INTO `admin` (`username`, `password`, `firstname`, `lastname`, `age`) VAL
 DROP TABLE IF EXISTS `booked_flights`;
 CREATE TABLE IF NOT EXISTS `booked_flights` (
   `BookingID` int(11) NOT NULL AUTO_INCREMENT,
+<<<<<<< HEAD
+  `flightID` varchar(30),
+=======
   `flightID` int(30) NOT NULL,
+>>>>>>> 871c9e325be812fb1edcb4aa82e928d7f954681d
   `userName` int(50) NOT NULL,
   PRIMARY KEY (`BookingID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -112,7 +146,12 @@ CREATE TABLE IF NOT EXISTS `customer_payment` (
 
 DROP TABLE IF EXISTS `flight`;
 CREATE TABLE IF NOT EXISTS `flight` (
+<<<<<<< HEAD
+  `flightID` varchar(30),
+  `flightName` varchar(30) NOT NULL,
+=======
   `flightID` varchar(30) NOT NULL,
+>>>>>>> 871c9e325be812fb1edcb4aa82e928d7f954681d
   `depatureCity` varchar(30) NOT NULL,
   `destinationCity` varchar(30) NOT NULL,
   `depatureDate` date NOT NULL,
@@ -156,6 +195,7 @@ ALTER TABLE `customer_payment`
 ALTER TABLE `flight_cost`
   ADD CONSTRAINT `FK_FlightID_Cost` FOREIGN KEY (`flightID`) REFERENCES `flight` (`flightID`);
 COMMIT;
+
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;

@@ -22,7 +22,11 @@
 		    <div class="card-body">
 		      <div class="row">
 		        <div class="col">
+<<<<<<< HEAD
+		          <form class="form-signin">
+=======
 		          <form class="form-signin" action = 'adminlogin' method = 'POST'>
+>>>>>>> 871c9e325be812fb1edcb4aa82e928d7f954681d
 		            <input type="text" class="form-control mb-2" placeholder="UserID" name="adminId" required autofocus>
 		            <input type="password" class="form-control mb-2" placeholder="Password" name="adminPassword" required>
 		            <button class="btn btn-lg btn-primary btn-block mb-1" type="submit">Log in</button>
@@ -47,7 +51,10 @@
 	$value = stripcslashes($value);
 	$value = htmlspecialchars($value);
 	return $value;
+<<<<<<< HEAD
+=======
 	}
+>>>>>>> 871c9e325be812fb1edcb4aa82e928d7f954681d
 
 	if($_SERVER["REQUEST_METHOD"] == "POST"){
 
@@ -56,6 +63,15 @@
 
 	$cleanID = cleanInputs($adminId);
 	$cleanPassword = cleanInputs($adminPassword);
+<<<<<<< HEAD
+
+
+}
+
+
+}	
+
+=======
 	
 
 	 $servername = "localhost";
@@ -108,4 +124,5 @@
 
 
 	
+>>>>>>> 871c9e325be812fb1edcb4aa82e928d7f954681d
 ?>
