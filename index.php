@@ -1,6 +1,6 @@
 <?php
 session_start();
-
+ 
 //Define empty variables for errors
 $fNameErr = "";
 $passwdErr = "";
@@ -37,10 +37,10 @@ function processFormData($value1,$value2,$value3,$value4,$value5,$value6,$value7
 		{
 			return $response; //If the values are empty return 0 
 		}else if($errFlag == 1){
-			return $response; //IF an error occurs return the value in $response
+			return $response; //If an error occurs return the value in $response
 		}
 		else{
-			$response = 1;//If the response is 1 set session values
+			$response = 1;//If the $response is 1 set session values
 			$_SESSION['user_info'] = array(
 			'userFirstName' => $value1, 
 			'userLastName' => $value2,
@@ -50,7 +50,7 @@ function processFormData($value1,$value2,$value3,$value4,$value5,$value6,$value7
 			'userAddress' => $value6,
 			'userCreditCrdNum' => $value7
 			);
-			return $response;//Return response value
+			return $response;//Return $response value
 		}
 }
 //Verify length of password user submits
@@ -105,22 +105,21 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 	$profilePic = "";
 
 
-
 	//Connect to DB and enter data
 	//Validate username
 	if(!preg_match("/^([A-Z]{1})([A-Za-z-])?/", $cleanFirstName))
 	{
-		$nameErr = "Firstname is invalid";
+		$fNameErr = "Firstname is invalid";
 		$errFlag = 1;
 	}
 	//Validate full name
 	if(!preg_match("/^([A-Z]{1})([A-Za-z-])?/", $cleanLastName))
 	{
-		$wholeNameErr = "Lastname is invalid";
+		$LNameErr = "Lastname is invalid";
 		$errFlag = 1;
 	}
 	//Validate email
-	if(!filter_var($cleanUserEmail,FILTER_VALIDATE_EMAIL))
+	if(!filter_var($cleanEmail,FILTER_VALIDATE_EMAIL))
 	{
 		$emailErr = "Email is invalid";
 		$errFlag = 1;
@@ -138,18 +137,19 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 		$errFlag = 1;
 	}
 	//Validate credit card num
-	if(!preg_match("^(?:4[0-9]{12}(?:[0-9]{3})?",$cleanCCNum)){
+	if(!preg_match("/^(?:4[0-9]{12})(?:[0-9]{3})?/",$cleanCCNum)){
 		$ccNumErr = "Credit card isn't valid";
 		$errFlag = 1;
 	}
 
 	//Pass in validated information
-	$Val = process_customer_query($cleanFirstName,$cleanLastName,$cleanPassword
+	$Val = processFormData($cleanFirstName,$cleanLastName,$cleanPassword
 	,$cleanEmail,$cleanAge,$cleanAddress,$cleanCCNum,$errFlag);
 
 	//Connect to DB and enter data
 	try{
-		//Set DB connection
+		if($Val==1){
+				//Set DB connection
 		$conn = new PDO("mysql:host=$serverName;dbname=$dbName",$dbUserName,$dbPassword);
 		$conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
@@ -167,6 +167,14 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 		echo '<div class="alert alert-success">
 		  <strong>Success!</strong> Record Added
 		</div>';
+		}
+		else{
+			echo '<div class="alert alert-primary">
+		  <strong>An error occured!</strong>
+		</div>';
+	
+		// header('Refresh: 2; URL=index.php');
+		}
 
 		//header('Refresh: 2; URL=index.php');
 
@@ -190,8 +198,6 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 
 	<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
 
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-
 </head>
 <body background="assets/images/home.jpg">
 	<div class="container-fluid">
@@ -205,15 +211,15 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 	            <ul class="nav navbar-nav flex-row justify-content-between ml-auto">
 	                <li class="nav-item"><a href="#" class="nav-link">Already a member?</a></li>
 	                <li class="dropdown order-1">
-	                    <button type="button" id="dropdownMenu1" data-toggle="dropdown" class="btn btn-outline-primary dropdown-toggle ">Login/Register <span class="caret"></span></button>
+	                    <button type="button" id="dropdownMenu1" data-toggle="dropdown" class="btn btn-outline-primary dropdown-toggle ">Login/Register</button>
 	                    <ul class="dropdown-menu dropdown-menu-right mt-1 transparent">
 	                      <li class="p-3">
 	                            <form class="form" role="form" action="" method="POST">
 	                                <div class="form-group">
-	                                    <input id="emailInput" placeholder="Email" class="form-control form-control-sm" type="text" required="">
+	                                    <input id="emailInput" placeholder="Email" class="form-control form-control-sm" type="text" ="">
 	                                </div>
 	                                <div class="form-group">
-	                                    <input id="passwordInput" placeholder="Password" class="form-control form-control-sm" type="text" required="">
+	                                    <input id="passwordInput" placeholder="Password" class="form-control form-control-sm" type="text" ="">
 	                                </div>
 	                                <div class="form-check">
 								    <input type="checkbox" class="form-check-input" id="exampleCheck1">
@@ -238,52 +244,58 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 	</nav>
 	
 <!-- Modal -->
-<div class="modal" id="registerModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal" id="registerModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header ">
         <h4 class="modal-title" id="exampleModalLabel">Sign Up</h4>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"  aria-hidden="true">&times;
         </button>
       </div>
       <div class="modal-body">
 		
 		<!-- form starts here -->
-      	<form action="<?php echo htmlentities($_SERVER['PHP_SELF']); ?>" method="POST">
+    <form action="<?php echo htmlentities($_SERVER['PHP_SELF']); ?>" method="POST" id="registration">
 		  <div class="form-row">
 		    <div class="col-6">
-		    <input type="text" class="form-control" placeholder="First Name" name="userFirstName">
+		    <input type="text" class="form-control" placeholder="First Name" name="userFirstName" >
+				<?php echo $fNameErr; ?>
 		  </div>
 		    <div class="col-6">
-		      <input type="text" class="form-control" placeholder="Last Name" name="userLastName">
+		      <input type="text" class="form-control" placeholder="Last Name" name="userLastName" >
+					 <?php echo $LNameErr; ?>
 		    </div>
 		  </div>
 		  <br>
 		  <div class="form-row row">
 		    <div class="col">
-		    	<input type="email" class="form-control" name="userEmail" placeholder="Email">
+		    	<input type="email" class="form-control" name="userEmail" placeholder="Email" >
+					 <?php echo $emailErr; ?>
 		    </div>
 		  </div>
 		  <br>
 		  <div class="form-row row">
 		    <div class="col">
-		    	<input type="password" class="form-control" name="userPassword" placeholder="Password">
+		    	<input type="password" class="form-control" name="userPassword" placeholder="Password" >
+				 <?php echo $passwdErr; ?>
 		    </div>
 		  </div>
 		  <br>
 		  <div class="form-row">
 		    <div class="col-6">
-		      <input type="number" class="form-control" placeholder="Age" name="userAge" min="1">
+		      <input type="number" class="form-control" placeholder="Age" name="userAge" min="1" >
+					<?php echo $ageErr; ?>
 		    </div>
 		    <div class="col-6">
-		      <input type="text" class="form-control" placeholder="Credit Card Number" name="userCCNum">
+		      <input type="text" class="form-control" placeholder="Credit Card Number" name="userCCNum" >
+					 <?php echo $ccNumErr; ?>
 		    </div>
 		  </div>
 		  <br>
 		   <div class="form-row">
 		    <div class="col">
-		      <input type="text" class="form-control" placeholder="Address" name="userAddress">
+		      <input type="text" class="form-control" placeholder="Address" name="userAddress" >
+					 <?php echo $addressErr; ?>
 		    </div>
 		  </div>
 		  <br>
@@ -295,14 +307,11 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 		  </div>
 		  <br>
 		 <div class="d-flex justify-content-between">
-		 <button type="button float-right" class="btn btn-primary" href="#" id="registerBtn">Register</button>
+		 <button type="submit" class="btn btn-primary" name="registerBtn" id="registerBtn">Register</button>
 		  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
 		</div>
 		</form>
       </div>
-      <div class="modal-footer">
-			
-			</div>
     </div>
   </div>
 </div>
@@ -370,8 +379,8 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 
+<!--The script below is to show the preview of the user profile-->
 	<script type="text/javascript"> 
-
 		function disablefield(){ 
 			if (document.getElementById('option2').checked == 1){ 
 				document.getElementById('returnDate').disabled='disabled';
@@ -393,6 +402,13 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
             }
         } 
 	</script>
+
+	<!--Scripts for form validation-->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+	<script src="https://cdn.jsdelivr.net/jquery.validation/1.15.1/jquery.validate.min.js"></script>
+
+	<script src="assets/js/formValidation.js"></script>
 
 </body>
 </html>
