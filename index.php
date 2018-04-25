@@ -74,107 +74,128 @@ function verifyPasswordLength($value)
 
 
 if($_SERVER["REQUEST_METHOD"] == "POST"){
+	
+	
 	if(isset($_POST['registerBtn'])){
-			//Collect form data here
-	$userFirstName = $_POST['userFirstName'];
-	$userLastName = $_POST['userLastName'];
-	$userEmail = $_POST['userEmail'];
-	$userPassword = $_POST['userPassword'];
-	$userAge = $_POST['userAge'];
-	$userAddress = $_POST['userAddress'];
-	$userCCNum = $_POST['userCCNum'];
+		//Collect form data here
+		$userFirstName = $_POST['userFirstName'];
+		$userLastName = $_POST['userLastName'];
+		$userEmail = $_POST['userEmail'];
+		$userPassword = $_POST['userPassword'];
+		$userAge = $_POST['userAge'];
+		$userAddress = $_POST['userAddress'];
+		$userCCNum = $_POST['userCCNum'];
 
 	
-	//First level of sanitation here
-	$cleanFirstName = cleanInputs($userFirstName);
-	$cleanLastName = cleanInputs($userLastName);
-	$cleanEmail = cleanInputs($userEmail);
-	$cleanPassword = cleanInputs($userPassword);
-	$cleanAge = cleanInputs($userAge);
-	$cleanAddress = cleanInputs($userAddress);
-	$cleanCCNum = cleanInputs($userCCNum);
+		//First level of sanitation here
+		$cleanFirstName = cleanInputs($userFirstName);
+		$cleanLastName = cleanInputs($userLastName);
+		$cleanEmail = cleanInputs($userEmail);
+		$cleanPassword = cleanInputs($userPassword);
+		$cleanAge = cleanInputs($userAge);
+		$cleanAddress = cleanInputs($userAddress);
+		$cleanCCNum = cleanInputs($userCCNum);
 
-	$profile_pic = ""; //to be used for bonus marks
+		$profile_pic = ""; //to be used for bonus marks
 
-	$passwdErr = verifyPasswordLength($cleanPassword);
+		$passwdErr = verifyPasswordLength($cleanPassword);
 
-	$hash_creditNum = md5($cleanCCNum);
-	$hash_password = password_hash($cleanPassword,PASSWORD_DEFAULT);
-
-
-	$profilePic = "";
+		$hash_creditNum = md5($cleanCCNum);
+		$hash_password = password_hash($cleanPassword,PASSWORD_DEFAULT);
 
 
+		$profilePic = "";
 
-	//Connect to DB and enter data
-	//Validate username
-	if(!preg_match("/^([A-Z]{1})([A-Za-z-])?/", $cleanFirstName))
-	{
-		$nameErr = "Firstname is invalid";
-		$errFlag = 1;
-	}
-	//Validate full name
-	if(!preg_match("/^([A-Z]{1})([A-Za-z-])?/", $cleanLastName))
-	{
-		$wholeNameErr = "Lastname is invalid";
-		$errFlag = 1;
-	}
-	//Validate email
-	if(!filter_var($cleanUserEmail,FILTER_VALIDATE_EMAIL))
-	{
-		$emailErr = "Email is invalid";
-		$errFlag = 1;
-	}
-	//Validate address
-	if(!preg_match("/^[0-9a-zA-Z,. ]+/", $cleanAddress))
-	{
-		$addressErr = "Address is invalid";
-		$errFlag = 1;
-	}
-	//Validate age
-	if(!filter_var($cleanAge,FILTER_VALIDATE_INT))
-	{
-		$ageErr = "Age is invalid";
-		$errFlag = 1;
-	}
-	//Validate credit card num
-	if(!preg_match("^(?:4[0-9]{12}(?:[0-9]{3})?",$cleanCCNum)){
-		$ccNumErr = "Credit card isn't valid";
-		$errFlag = 1;
-	}
 
-	//Pass in validated information
-	$Val = process_customer_query($cleanFirstName,$cleanLastName,$cleanPassword
-	,$cleanEmail,$cleanAge,$cleanAddress,$cleanCCNum,$errFlag);
 
-	//Connect to DB and enter data
-	try{
-		//Set DB connection
-		$conn = new PDO("mysql:host=$serverName;dbname=$dbName",$dbUserName,$dbPassword);
-		$conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+		//Connect to DB and enter data
+		//Validate username
+		if(!preg_match("/^([A-Z]{1})([A-Za-z-])?/", $cleanFirstName))
+		{
+			$nameErr = "Firstname is invalid";
+			$errFlag = 1;
+		}
+		//Validate full name
+		if(!preg_match("/^([A-Z]{1})([A-Za-z-])?/", $cleanLastName))
+		{
+			$wholeNameErr = "Lastname is invalid";
+			$errFlag = 1;
+		}
+		//Validate email
+		if(!filter_var($cleanUserEmail,FILTER_VALIDATE_EMAIL))
+		{
+			$emailErr = "Email is invalid";
+			$errFlag = 1;
+		}
+		//Validate address
+		if(!preg_match("/^[0-9a-zA-Z,. ]+/", $cleanAddress))
+		{
+			$addressErr = "Address is invalid";
+			$errFlag = 1;
+		}
+		//Validate age
+		if(!filter_var($cleanAge,FILTER_VALIDATE_INT))
+		{
+			$ageErr = "Age is invalid";
+			$errFlag = 1;
+		}
+		//Validate credit card num
+		if(!preg_match("^(?:4[0-9]{12}(?:[0-9]{3})?",$cleanCCNum)){
+			$ccNumErr = "Credit card isn't valid";
+			$errFlag = 1;
+		}
 
-		//Set queries for inserting into DB
-		$sql = "INSERT INTO customer (userName,firstName,lastName,age,mailAddress,credit_card_Num, profile_pic) VALUES 
-		('$cleanEmail','$cleanFirstName','$cleanLastName','$cleanAge','$cleanAddress','$hash_creditNum', '$profilePic')";
+		//Pass in validated information
+		$Val = process_customer_query($cleanFirstName,$cleanLastName,$cleanPassword
+		,$cleanEmail,$cleanAge,$cleanAddress,$cleanCCNum,$errFlag);
 
-		$sql2 = "INSERT INTO customer_login (userName,password) VALUES 
-		('$cleanEmail','$hash_password')";
+		//Connect to DB and enter data
+		try{
+			//Set DB connection
+			$conn = new PDO("mysql:host=$serverName;dbname=$dbName",$dbUserName,$dbPassword);
+			$conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+			
+			
+			//establish database connection
+					
+					$conn = new PDO("mysql:host=$serverName;dbname=$dbName",$dbUserName,$dbPassword);
+					// set the PDO error mode to exception
+					$conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+					//set the default PDO fetch mode to object
+					$conn->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_OBJ);
 
-		//Execute statements
-		$conn->exec($sql);
-		$conn->exec($sql2);
+			//Set queries for inserting into DB
+			$sql = "INSERT INTO customer (userName,firstName,lastName,age,mailAddress,credit_card_Num, profile_pic) VALUES 
+			('$cleanEmail','$cleanFirstName','$cleanLastName','$cleanAge','$cleanAddress','$hash_creditNum', '$profilePic')";
 
-		echo '<div class="alert alert-success">
-		  <strong>Success!</strong> Record Added
-		</div>';
+			$sql2 = "INSERT INTO customer_login (userName,password) VALUES 
+			('$cleanEmail','$hash_password')";
 
-		//header('Refresh: 2; URL=index.php');
+			//Execute statements
+			$conn->exec($sql);
+			$conn->exec($sql2);
 
- }catch(PDOException $e){
+			echo '<div class="alert alert-success">
+			  <strong>Success!</strong> Record Added
+			</div>';
+
+			//header('Refresh: 2; URL=index.php');
+
+		}catch(PDOException $e){
  			echo $sql. "<br>" . $e->getMessage();
 		}
  		$conn = null;//Close connection to db
-		}
+		} //end if
+		else if(isset($_POST['bookBtn'])){
+		//Collect form data here
+	
+		$_SESSION['depatureCity']  = $_POST['departure'];
+		$_SESSION['destination'] = $_POST['arrival'];
+		$_SESSION['depatureDate'] = $_POST['departDate'];
+		
+		header("location:flight.php");
+		
+		} //end if
 	}
 
 ?>
@@ -341,7 +362,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 		  <div class="form-row row">
 		    <div class="col-6">
 		    	Depart
-		    	<input type="date" class="form-control" style="width: 100%" name="dapartDate">
+		    	<input type="date" class="form-control" style="width: 100%" name="departDate">
 		    </div>
 		    <div class="col-6">
 		    	Return
@@ -357,7 +378,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 		  </div>
 		  <br>
 		  <center>
-		  <input class="btn btn-primary btn-lg btn-block" type="submit" value="Book">
+		  <input type="submit" class="btn btn-primary btn-lg btn-block" name="bookBtn" value="Book" />
 		  </center>
 		</form>
 	</div>
@@ -388,30 +409,17 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
             }
         } 
 	</script>
-
-	<script type="text/javascript"> 
-
-		function disablefield(){ 
-			if (document.getElementById('option2').checked == 1){ 
-				document.getElementById('returnDate').disabled='disabled';
-				document.getElementById('returnDate').value='disabled'; 
-			}else{ 
-				document.getElementById('returnDate').disabled=''; 
-				document.getElementById('returnDate').value='Allowed';
-			} 
-		}
-
-		function readURL(input) {
-            if (input.files && input.files[0]) {
-                var reader = new FileReader();
-                reader.onload = function (e) {
-                    $('#blah')
-                        .attr('src', e.target.result);
-                };
-                reader.readAsDataURL(input.files[0]);
-            }
-        } 
-	</script>
-
+	
+	<!---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------> 
+	<!-- Bootstrap Script Links --> 
+	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+	
+	<!-- jQuery first, then Bootstrap JS. -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script src="https://cdn.rawgit.com/twbs/bootstrap/v4-dev/dist/js/bootstrap.js"></script>
+	<!---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------> 
+	
 </body>
 </html>
