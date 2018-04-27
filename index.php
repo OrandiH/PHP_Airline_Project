@@ -178,12 +178,25 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 
 		//header('Refresh: 2; URL=index.php');
 
- }catch(PDOException $e){
+ 		}catch(PDOException $e){
  			echo $sql. "<br>" . $e->getMessage();
 		}
  		$conn = null;//Close connection to db
-		}
 	}
+	if(isset($_POST['bookBtn'])){
+		//Collect form data here
+		
+		$_SESSION['depatureCity']  = $_POST['departure'];
+		$_SESSION['destination'] = $_POST['arrival'];
+		$_SESSION['depatureDate'] = $_POST['departDate'];
+		$_SESSION['returnDate'] = $_POST['returnDate'];
+
+
+		//header("location:viewFlights.php");
+		
+	}
+}
+
 
 ?>
 <!DOCTYPE html>
@@ -203,7 +216,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 	<div class="container-fluid">
 	<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top" role="navigation">
 	    <div class="container">
-	        <a class="navbar-brand" href="#">Booking</a>
+	        <a class="navbar-brand" href="#">Book Flight</a>
 	        <button class="navbar-toggler border-0" type="button" data-toggle="collapse" data-target="#exCollapsingNavbar">
 	            &#9776;
 	        </button>
@@ -301,8 +314,8 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 		  <br>
 		  <div class="form-row">
 		    <div class="col">
-				<img id="blah" src="http://placehold.it/180" alt="your image" />
-				<input type='file' onchange="readURL(this);" name="profilePic">
+				<img id="proPic" src="http://placehold.it/180" alt="your image" />
+				<input type='file' onchange="previewProfilePic(this);" name="profilePic">
 		    </div>
 		  </div>
 		  <br>
@@ -318,7 +331,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 
 
 	<div class="container container-body">
-		<form action="" method="POST">
+		<form action="viewFlights.php" method="POST">
 			<div class="form-row">
 				<div class="col">
 					<center>
@@ -350,11 +363,11 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 		  <div class="form-row row">
 		    <div class="col-6">
 		    	Depart
-		    	<input type="date" class="form-control" style="width: 100%" name="dapartDate">
+		    	<input type="date" class="form-control" style="width: 100%" name="departDate">
 		    </div>
 		    <div class="col-6">
 		    	Return
-		      <input type="date" id="returnDate" class="form-control return" style="width: 100%" name="returnDate">
+		      <input type="date" id="return" class="form-control return" style="width: 100%" name="returnDate">
 		    </div>
 		  </div>
 		  <br>
@@ -366,7 +379,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 		  </div>
 		  <br>
 		  <center>
-		  <input class="btn btn-primary btn-lg btn-block" type="submit" value="Book">
+		  <input class="btn btn-primary btn-lg btn-block" type="submit" value="Search">
 		  </center>
 		</form>
 	</div>
@@ -374,47 +387,23 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 
 	</div>
 
-	<script type="text/javascript"> 
-
+	<script type="text/javascript">
+		//Function that disables text box based on type of trip selected
 		function disablefield(){ 
 			if (document.getElementById('option2').checked == 1){ 
-				document.getElementById('returnDate').disabled='disabled';
-				document.getElementById('returnDate').value='disabled'; 
+				document.getElementById('return').disabled='disabled';
+				document.getElementById('return').value='disabled'; 
 			}else{ 
-				document.getElementById('returnDate').disabled=''; 
-				document.getElementById('returnDate').value='Allowed';
+				document.getElementById('return').disabled=''; 
+				document.getElementById('return').value='Allowed';
 			} 
 		}
-
-		function readURL(input) {
+		// Function to show the preview of the user profile
+		function previewProfilePic(input) {
             if (input.files && input.files[0]) {
                 var reader = new FileReader();
                 reader.onload = function (e) {
-                    $('#blah')
-                        .attr('src', e.target.result);
-                };
-                reader.readAsDataURL(input.files[0]);
-            }
-        } 
-	</script>
-
-<!--The script below is to show the preview of the user profile-->
-	<script type="text/javascript"> 
-		function disablefield(){ 
-			if (document.getElementById('option2').checked == 1){ 
-				document.getElementById('returnDate').disabled='disabled';
-				document.getElementById('returnDate').value='disabled'; 
-			}else{ 
-				document.getElementById('returnDate').disabled=''; 
-				document.getElementById('returnDate').value='Allowed';
-			} 
-		}
-
-		function readURL(input) {
-            if (input.files && input.files[0]) {
-                var reader = new FileReader();
-                reader.onload = function (e) {
-                    $('#blah')
+                    $('#proPic')
                         .attr('src', e.target.result);
                 };
                 reader.readAsDataURL(input.files[0]);
@@ -428,6 +417,11 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 	<script src="https://cdn.jsdelivr.net/jquery.validation/1.15.1/jquery.validate.min.js"></script>
 
 	<script src="assets/js/formValidation.js"></script>
+
+
+	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 
 </body>
 </html>
