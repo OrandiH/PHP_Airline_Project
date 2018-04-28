@@ -22,16 +22,12 @@
 		    <div class="card-body">
 		      <div class="row">
 		        <div class="col">
-<<<<<<< HEAD
-		          <form class="form-signin">
-=======
-		          <form class="form-signin" action = 'adminlogin' method = 'POST'>
->>>>>>> 871c9e325be812fb1edcb4aa82e928d7f954681d
+		        <form class="form-signin" action="adminlogin.php" method= "POST">
 		            <input type="text" class="form-control mb-2" placeholder="UserID" name="adminId" required autofocus>
 		            <input type="password" class="form-control mb-2" placeholder="Password" name="adminPassword" required>
 		            <button class="btn btn-lg btn-primary btn-block mb-1" type="submit">Log in</button>
 		        </label>
-		          </form>
+		        </form>
 		        </div>
 		      </div>
 		    </div>
@@ -51,78 +47,60 @@
 	$value = stripcslashes($value);
 	$value = htmlspecialchars($value);
 	return $value;
-<<<<<<< HEAD
-=======
+
 	}
->>>>>>> 871c9e325be812fb1edcb4aa82e928d7f954681d
 
-	if($_SERVER["REQUEST_METHOD"] == "POST"){
+	if($_SERVER["REQUEST_METHOD"] == "POST")
+	{
 
-	$adminId = $_POST['adminId'];
-	$adminPassword = $_POST['adminPassword'];
+		$adminId = $_POST['adminId'];
+		$adminPassword = $_POST['adminPassword'];
 
-	$cleanID = cleanInputs($adminId);
-	$cleanPassword = cleanInputs($adminPassword);
-<<<<<<< HEAD
+		$cleanID = cleanInputs($adminId);
+		$cleanPassword = cleanInputs($adminPassword);
 
-
-}
-
-
-}	
-
-=======
-	
-
-	 $servername = "localhost";
-		$dbUsername = "root";
+		$serverName = "localhost";
+		$dbUserName = "root";
 		$dbPassword = "";
-		$dbName = "airlines_db"; 
+		$dbName = "Airlines_db";
 
 		try{
-			$pdo = new PDO("mysql:host=$servername;dbname=$dbName",$dbUsername,$dbPassword);
-			//set the PDO error mode to exception
-			$pdo->setAttribute(PDO::ATTR_ERRMODE,PDO::ERRMODE_EXCEPTION);
-		
-			//set the default PDO fetch mode to Object
-			$pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE,PDO::FETCH_OBJ);
-	
-		
-			//set SQL statement using named parameters
-			$sql = 'SELECT * FROM admin WHERE username = :username';
-			$stmt = $pdo->prepare($sql);
-			$stmt->execute(['username'=> $cleanID]);
-			$users = $stmt->fetchAll(); 
-			$userCount = $stmt->rowCount();
-		  if($userCount == 1){
-				$pass = $users[0]-> password;
-				$name = $users[0]-> firstname;
-				if(password_verify($cleanPassword, $pass)){
-					$_SESSION["admin_name"] = $name;
-					echo ("<script LANGUAGE='JavaScript'>
-					window.alert('WELCOME, ADMIN SPLASH PAGE SHOULD BE NEXT');
-					</script>");
-					//header('Location:ADMINSLASH.php');
-				}
+			$pdo = new PDO("mysql:host=$serverName;dbname=$dbName",$dbUserName,$dbPassword);
+			$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-			}
-			else
+
+			//Set the default PDO fetch mode to Object
+			$pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_OBJ);
+
+			//Set SQL statement using named parameters
+
+			$sql = "SELECT * FROM admin WHERE username = :adminId && password = :adminPassword";
+
+			$stmt = $pdo->prepare($sql);
+			$stmt->execute([':adminId' => $adminId,':adminPassword'=> $adminPassword]);
+
+			$admin = $stmt->fetchAll();
+			$userCount = $stmt->rowCount();
+
+			if($userCount == 1)
 			{
-				echo ("<script LANGUAGE='JavaScript'>
-				window.alert('PLEASE CHECK YOUR USERNAME OR PASSWORD');
-				</script>");
+				$_SESSION['admin'] = (array) $admin;
+				echo '<div class="alert alert-success text-center col-4" role="alert">
+				  <strong>Login Successfull</strong>
+				</div>';
+				header("Refresh: 1; url=adminDashboard.php");
 			}
+			else{
+				header("Refresh:2; url=login.php");
+				echo "<h2>Invalid userID or password</h2>";
+			}
+
+		}catch(PDOException $e){
+		 	echo $sql. "<br>" . $e->getMessage();
 		}
-		catch(PDOException $e)
-		{
-			echo $sql."<br />". $e->getMessage();
-		}
-		
-		$stmt = null;
-		$pdo = null;
+		$stmt = null;//Close connection to db
+		$pdo = null;	
+
 	}
 
-
-	
->>>>>>> 871c9e325be812fb1edcb4aa82e928d7f954681d
 ?>

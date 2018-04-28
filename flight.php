@@ -239,7 +239,7 @@
 						} // end if
 						else
 						{
-							$msg = '<label style="color:red">No matchig flights are available...!</label>';
+							$msg = '<label style="color:red">No flights are available for that date...!</label>';
 						} //end else
 									
 						//close database connection
@@ -316,7 +316,7 @@
 						} // end if
 						else
 						{
-							$msg = '<label style="color:red">No matchig flights are available...!</label>';
+							$msg = '<label style="color:red">No flights are available for that date...!</label>';
 						} //end else
 									
 						//close database connection

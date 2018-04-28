@@ -39,8 +39,6 @@ function sanitize_data($data) {
   return $data;
 }
 
-
-
 if($_SERVER["REQUEST_METHOD"] == "POST"){
 $cus_email = $_POST['email'];
 $firstname = $_POST['firstname'];
@@ -211,13 +209,24 @@ if(isset($_POST['delete']))
 
 ?>
 
-<!doctype html>
+<!DOCTYPE html>
 <html>
 <head>
-<title> Manage Customer</title>
-	<body>
-                <form action="managecus.php" method="POST" >
-                <table cellpadding = "5"> 
+    <title>Admin Dashboard</title>
+    <meta charset="utf-8">
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <link rel="stylesheet" type="text/css" href="assets/style.css">
+
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+</head>
+<body>
+                <form action="managecus.php" method="POST>
+                <table cellpadding = "1"> 
                     <tr>
 					<td><input type="text" name="email" placeholder="email" value="<?php echo $email;?>"></td><td><span><?php echo $emailErr?></span></td><br><br>
                     </tr>
@@ -240,14 +249,12 @@ if(isset($_POST['delete']))
                     <input type="submit" name="search" value="Search"></td>
                     </tr>
                 </table>
-                </form> 
-			</br>
-			</br>
+                </form>     
 	</body>
 </html>
 
 <?php
-echo "<table style='border: solid 1px black;'>";
+echo "<table class='table'>";
 echo "<tr><th>EMAIL</th><th>FIRSTNAME</th><th>LASTNAME</th><th>AGE</th><th>ADDRESS</th></tr>";
 
 class TableRows extends RecursiveIteratorIterator { 
@@ -276,6 +283,56 @@ try {
 	$conn = new PDO("mysql:host=$servername;dbname=$dbName",$dbUsername,$dbPassword);
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     $stmt = $conn->prepare("SELECT username,firstName,lastName,age,mailAddress FROM customer "); 
+    $stmt->execute();
+
+
+    // set the resulting array to associative
+    $result = $stmt->setFetchMode(PDO::FETCH_ASSOC); 
+    foreach(new TableRows(new RecursiveArrayIterator($stmt->fetchAll())) as $k=>$v) { 
+        echo $v;
+    }
+}
+catch(PDOException $e) {
+    echo "Error: " . $e->getMessage();
+}
+$conn = null;
+echo "</table>";
+
+echo "<br></br><br></br>";
+
+?>
+
+
+<?php
+echo "<table class='table'>";
+echo "<tr><th>EMAIL</th><th>FIRSTNAME</th><th>LASTNAME</th><th>AGE</th><th>ADDRESS</th></tr>";
+
+class TableRows2 extends RecursiveIteratorIterator { 
+    function __construct($it) { 
+        parent::__construct($it, self::LEAVES_ONLY); 
+    }
+
+    function current() {
+        return "<td style='width:150px;border:1px solid black;'>" . parent::current(). "</td>";
+    }
+
+    function beginChildren() { 
+        echo "<tr>"; 
+    } 
+
+    function endChildren() { 
+        echo "</tr>" . "\n";
+    } 
+} 
+    $servername = "localhost";
+    $dbUsername = "root";
+    $dbPassword = "";
+	$dbName = "airlines_db"; 
+
+try {
+	$conn = new PDO("mysql:host=$servername;dbname=$dbName",$dbUsername,$dbPassword);
+    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $stmt = $conn->prepare("SELECT flightID, flightName, depatureCity, destinationCity, depatureDate, returnDate, AmountOfSeats FROM flight"); 
     $stmt->execute();
 
 
