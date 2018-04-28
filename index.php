@@ -1,204 +1,235 @@
 <?php
-session_start();
- 
-//Define empty variables for errors
-$fNameErr = "";
-$passwdErr = "";
-$LNameErr = "";
-$emailErr = "";
-$ageErr = "";
-$addressErr = "";
-$ccNumErr = "";
-$Val = 0; 
-$errFlag = 0; //This is needed to identify errors
+	session_start();
 
-//Define variables for database access
-$serverName = "localhost";
-$dbUserName = "root";
-$dbPassword = "";
-$dbName = "Airlines_db";
+	//Define empty variables for errors
+	$fNameErr = "";
+	$passwdErr = "";
+	$LNameErr = "";
+	$emailErr = "";
+	$ageErr = "";
+	$addressErr = "";
+	$ccNumErr = "";
+	$Val = 0; 
+	$errFlag = 0; //This is needed to identify errors
+	
+	//Define empty booking variables
+	$tripType = $oneway = $deptCity = $arrCity = $dDay = $rDay = $noOfpassenger = "";
 
-//Variables to store hashed values
-$hash_password = "";
-$hash_creditNum = "";
+	//Define variables for database access
+	$serverName = "localhost";
+	$dbUserName = "root";
+	$dbPassword = "";
+	$dbName = "Airlines_db";
 
-//Function to clean inputs received from form
-function cleanInputs($value){
+	//Variables to store hashed values
+	$hash_password = "";
+	$hash_creditNum = "";
 
-	$value = trim($value);
-	$value = stripcslashes($value);
-	$value = htmlspecialchars($value);
-	return $value;
-}	
+	//Function to clean inputs received from form
+	function cleanInputs($value){
 
-function processFormData($value1,$value2,$value3,$value4,$value5,$value6,$value7,$errFlag){
-	$response= 0;//Initializing $response variable
-	if($value1=="" && $value2 =="" && $value3 == "" && $value4 == "" && $value5 == "" && $value6 == "" && $value7 == "")
+		$value = trim($value);
+		$value = stripcslashes($value);
+		$value = htmlspecialchars($value);
+		return $value;
+	}	
+
+	function processFormData($value1,$value2,$value3,$value4,$value5,$value6,$value7,$errFlag){
+		$response= 0;//Initializing $response variable
+		if($value1=="" && $value2 =="" && $value3 == "" && $value4 == "" && $value5 == "" && $value6 == "" && $value7 == "")
+			{
+				return $response; //If the values are empty return 0 
+			}else if($errFlag == 1){
+				return $response; //IF an error occurs return the value in $response
+			}
+			else{
+				$response = 1;//If the response is 1 set session values
+				$_SESSION['user_info'] = array(
+				'userFirstName' => $value1, 
+				'userLastName' => $value2,
+				'userPassword' => $value3,
+				'userEmail' => $value4,
+				'userAge' => $value5,
+				'userAddress' => $value6,
+				'userCreditCrdNum' => $value7
+				);
+				return $response;//Return response value
+			}
+	}
+	//Verify length of password user submits
+	function verifyPasswordLength($value)
+	{
+		if(strlen($value) < 8)
 		{
-			return $response; //If the values are empty return 0 
-		}else if($errFlag == 1){
-			return $response; //If an error occurs return the value in $response
+			$passwdErr = "Password is too short,password must be 8 characters";
+			$errFlag = 1;
+		}
+		else if (strlen($value) > 8) 
+		 {
+			$passwdErr = "Password is too long,password must be 8 characters at least";
+			$errFlag = 1;
 		}
 		else{
-			$response = 1;//If the $response is 1 set session values
-			$_SESSION['user_info'] = array(
-			'userFirstName' => $value1, 
-			'userLastName' => $value2,
-			'userPassword' => $value3,
-			'userEmail' => $value4,
-			'userAge' => $value5,
-			'userAddress' => $value6,
-			'userCreditCrdNum' => $value7
-			);
-			return $response;//Return $response value
+			$passwdErr = "";
 		}
-}
-//Verify length of password user submits
-function verifyPasswordLength($value)
-{
-	if(strlen($value) < 8)
-	{
-		$passwdErr = "Password is too short,password must be 8 characters";
-		$errFlag = 1;
+		return $passwdErr;
 	}
-	else if (strlen($value) > 8) 
-	 {
-		$passwdErr = "Password is too long,password must be 8 characters at least";
-		$errFlag = 1;
-	}
-	else{
-		$passwdErr = "";
-	}
-	return $passwdErr;
-}
 
 
-if($_SERVER["REQUEST_METHOD"] == "POST"){
-	if(isset($_POST['registerBtn'])){
+	if($_SERVER["REQUEST_METHOD"] == "POST"){
+		
+		
+		if(isset($_POST['registerBtn'])){
 			//Collect form data here
-	$userFirstName = $_POST['userFirstName'];
-	$userLastName = $_POST['userLastName'];
-	$userEmail = $_POST['userEmail'];
-	$userPassword = $_POST['userPassword'];
-	$userAge = $_POST['userAge'];
-	$userAddress = $_POST['userAddress'];
-	$userCCNum = $_POST['userCCNum'];
+			$userFirstName = $_POST['userFirstName'];
+			$userLastName = $_POST['userLastName'];
+			$userEmail = $_POST['userEmail'];
+			$userPassword = $_POST['userPassword'];
+			$userAge = $_POST['userAge'];
+			$userAddress = $_POST['userAddress'];
+			$userCCNum = $_POST['userCCNum'];
 
-	
-	//First level of sanitation here
-	$cleanFirstName = cleanInputs($userFirstName);
-	$cleanLastName = cleanInputs($userLastName);
-	$cleanEmail = cleanInputs($userEmail);
-	$cleanPassword = cleanInputs($userPassword);
-	$cleanAge = cleanInputs($userAge);
-	$cleanAddress = cleanInputs($userAddress);
-	$cleanCCNum = cleanInputs($userCCNum);
+		
+			//First level of sanitation here
+			$cleanFirstName = cleanInputs($userFirstName);
+			$cleanLastName = cleanInputs($userLastName);
+			$cleanEmail = cleanInputs($userEmail);
+			$cleanPassword = cleanInputs($userPassword);
+			$cleanAge = cleanInputs($userAge);
+			$cleanAddress = cleanInputs($userAddress);
+			$cleanCCNum = cleanInputs($userCCNum);
 
-	$profile_pic = ""; //to be used for bonus marks
+			$profile_pic = ""; //to be used for bonus marks
 
-	$passwdErr = verifyPasswordLength($cleanPassword);
+			$passwdErr = verifyPasswordLength($cleanPassword);
 
-	$hash_creditNum = md5($cleanCCNum);
-	$hash_password = password_hash($cleanPassword,PASSWORD_DEFAULT);
-
-
-	$profilePic = "";
+			$hash_creditNum = md5($cleanCCNum);
+			$hash_password = password_hash($cleanPassword,PASSWORD_DEFAULT);
 
 
-	//Connect to DB and enter data
-	//Validate username
-	if(!preg_match("/^([A-Z]{1})([A-Za-z-])?/", $cleanFirstName))
-	{
-		$fNameErr = "Firstname is invalid";
-		$errFlag = 1;
-	}
-	//Validate full name
-	if(!preg_match("/^([A-Z]{1})([A-Za-z-])?/", $cleanLastName))
-	{
-		$LNameErr = "Lastname is invalid";
-		$errFlag = 1;
-	}
-	//Validate email
-	if(!filter_var($cleanEmail,FILTER_VALIDATE_EMAIL))
-	{
-		$emailErr = "Email is invalid";
-		$errFlag = 1;
-	}
-	//Validate address
-	if(!preg_match("/^[0-9a-zA-Z,. ]+/", $cleanAddress))
-	{
-		$addressErr = "Address is invalid";
-		$errFlag = 1;
-	}
-	//Validate age
-	if(!filter_var($cleanAge,FILTER_VALIDATE_INT))
-	{
-		$ageErr = "Age is invalid";
-		$errFlag = 1;
-	}
-	//Validate credit card num
-	if(!preg_match("/^(?:4[0-9]{12})(?:[0-9]{3})?/",$cleanCCNum)){
-		$ccNumErr = "Credit card isn't valid";
-		$errFlag = 1;
-	}
+			$profilePic = "";
 
-	//Pass in validated information
-	$Val = processFormData($cleanFirstName,$cleanLastName,$cleanPassword
-	,$cleanEmail,$cleanAge,$cleanAddress,$cleanCCNum,$errFlag);
 
-	//Connect to DB and enter data
-	try{
-		if($Val==1){
+
+			//Connect to DB and enter data
+			//Validate username
+			if(!preg_match("/^([A-Z]{1})([A-Za-z-])?/", $cleanFirstName))
+			{
+				$nameErr = "Firstname is invalid";
+				$errFlag = 1;
+			}
+			//Validate full name
+			if(!preg_match("/^([A-Z]{1})([A-Za-z-])?/", $cleanLastName))
+			{
+				$wholeNameErr = "Lastname is invalid";
+				$errFlag = 1;
+			}
+			//Validate email
+			if(!filter_var($cleanUserEmail,FILTER_VALIDATE_EMAIL))
+			{
+				$emailErr = "Email is invalid";
+				$errFlag = 1;
+			}
+			//Validate address
+			if(!preg_match("/^[0-9a-zA-Z,. ]+/", $cleanAddress))
+			{
+				$addressErr = "Address is invalid";
+				$errFlag = 1;
+			}
+			//Validate age
+			if(!filter_var($cleanAge,FILTER_VALIDATE_INT))
+			{
+				$ageErr = "Age is invalid";
+				$errFlag = 1;
+			}
+			//Validate credit card num
+			if(!preg_match("^(?:4[0-9]{12}(?:[0-9]{3})?",$cleanCCNum)){
+				$ccNumErr = "Credit card isn't valid";
+				$errFlag = 1;
+			}
+
+			//Pass in validated information
+			$Val = process_customer_query($cleanFirstName,$cleanLastName,$cleanPassword
+			,$cleanEmail,$cleanAge,$cleanAddress,$cleanCCNum,$errFlag);
+
+			//Connect to DB and enter data
+			try{
 				//Set DB connection
-		$conn = new PDO("mysql:host=$serverName;dbname=$dbName",$dbUserName,$dbPassword);
-		$conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+				$conn = new PDO("mysql:host=$serverName;dbname=$dbName",$dbUserName,$dbPassword);
+				$conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+				
+				
+				//establish database connection
+						
+						$conn = new PDO("mysql:host=$serverName;dbname=$dbName",$dbUserName,$dbPassword);
+						// set the PDO error mode to exception
+						$conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+						//set the default PDO fetch mode to object
+						$conn->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_OBJ);
 
-		//Set queries for inserting into DB
-		$sql = "INSERT INTO customer (userName,firstName,lastName,age,mailAddress,credit_card_Num, profile_pic) VALUES 
-		('$cleanEmail','$cleanFirstName','$cleanLastName','$cleanAge','$cleanAddress','$hash_creditNum', '$profilePic')";
+				//Set queries for inserting into DB
+				$sql = "INSERT INTO customer (userName,firstName,lastName,age,mailAddress,credit_card_Num, profile_pic) VALUES 
+				('$cleanEmail','$cleanFirstName','$cleanLastName','$cleanAge','$cleanAddress','$hash_creditNum', '$profilePic')";
 
-		$sql2 = "INSERT INTO customer_login (userName,password) VALUES 
-		('$cleanEmail','$hash_password')";
+				$sql2 = "INSERT INTO customer_login (userName,password) VALUES 
+				('$cleanEmail','$hash_password')";
 
-		//Execute statements
-		$conn->exec($sql);
-		$conn->exec($sql2);
+				//Execute statements
+				$conn->exec($sql);
+				$conn->exec($sql2);
+				
+				// Free result set
+				unset($sql);
+				unset($sq2);
+				
+				echo '<div class="alert alert-success">
+				  <strong>Success!</strong> Record Added
+				</div>';
+				
+				//direct user to flight page
+				header("location:payment.php");
 
-		echo '<div class="alert alert-success">
-		  <strong>Success!</strong> Record Added
-		</div>';
-		}
-		else{
-			echo '<div class="alert alert-primary">
-		  <strong>An error occured!</strong>
-		</div>';
-	
-		// header('Refresh: 2; URL=index.php');
-		}
+				//header('Refresh: 2; URL=index.php');
 
-		//header('Refresh: 2; URL=index.php');
-
- 		}catch(PDOException $e){
- 			echo $sql. "<br>" . $e->getMessage();
-		}
- 		$conn = null;//Close connection to db
-	}
-	if(isset($_POST['bookBtn'])){
-		//Collect form data here
-		
-		$_SESSION['depatureCity']  = $_POST['departure'];
-		$_SESSION['destination'] = $_POST['arrival'];
-		$_SESSION['depatureDate'] = $_POST['departDate'];
-		$_SESSION['returnDate'] = $_POST['returnDate'];
-
-
-		//header("location:viewFlights.php");
-		
-	}
-}
-
-
+			}catch(PDOException $e){
+				echo $sql. "<br>" . $e->getMessage();
+			}
+				$conn = null;//Close connection to db
+			} //end if
+			else if(isset($_POST['bookBtn'])){
+				//Collect and clean booking data here
+				$tripType = cleanInputs($_POST['tripType']);
+				$deptCity = cleanInputs( $_POST['departure']);
+				$arrCity = cleanInputs($_POST['arrival']);
+				$dDay = cleanInputs($_POST['departDate']);
+				$rDay = cleanInputs($_POST['returnDate']);
+				$noOfpassenger = cleanInputs($_POST['passenger']);
+				
+				//session variable to store flight details
+				$_SESSION['book_info'] = array(
+					'tripType' => $tripType, 
+					'departure' => $deptCity,
+					'arrival' => $arrCity,
+					'departDate' => $dDay,
+					'returnDate' => $rDay,
+					'passenger' => $noOfpassenger,
+				);
+				
+				//error not outputing trip type
+				$m = $_SESSION['book_info']['tripType'];
+				/*
+				echo "<br><br><br><br>";
+				echo  $m; 
+				*/
+				//direct user to flight page
+				header("location:flight.php");
+				
+			} //end if
+			
+	} // end if post
 ?>
+
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -211,12 +242,14 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 
 	<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
 
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
 </head>
 <body background="assets/images/home.jpg">
 	<div class="container-fluid">
 	<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top" role="navigation">
 	    <div class="container">
-	        <a class="navbar-brand" href="#">Book Flight</a>
+	        <a class="navbar-brand" href="#">Booking</a>
 	        <button class="navbar-toggler border-0" type="button" data-toggle="collapse" data-target="#exCollapsingNavbar">
 	            &#9776;
 	        </button>
@@ -224,15 +257,15 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 	            <ul class="nav navbar-nav flex-row justify-content-between ml-auto">
 	                <li class="nav-item"><a href="#" class="nav-link">Already a member?</a></li>
 	                <li class="dropdown order-1">
-	                    <button type="button" id="dropdownMenu1" data-toggle="dropdown" class="btn btn-outline-primary dropdown-toggle ">Login/Register</button>
+	                    <button type="button" id="dropdownMenu1" data-toggle="dropdown" class="btn btn-outline-primary dropdown-toggle ">Login/Register <span class="caret"></span></button>
 	                    <ul class="dropdown-menu dropdown-menu-right mt-1 transparent">
 	                      <li class="p-3">
 	                            <form class="form" role="form" action="" method="POST">
 	                                <div class="form-group">
-	                                    <input id="emailInput" placeholder="Email" class="form-control form-control-sm" type="text" ="">
+	                                    <input id="emailInput" placeholder="Email" class="form-control form-control-sm" type="text" required="">
 	                                </div>
 	                                <div class="form-group">
-	                                    <input id="passwordInput" placeholder="Password" class="form-control form-control-sm" type="text" ="">
+	                                    <input id="passwordInput" placeholder="Password" class="form-control form-control-sm" type="text" required="">
 	                                </div>
 	                                <div class="form-check">
 								    <input type="checkbox" class="form-check-input" id="exampleCheck1">
@@ -257,81 +290,78 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 	</nav>
 	
 <!-- Modal -->
-<div class="modal" id="registerModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+<div class="modal" id="registerModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header ">
         <h4 class="modal-title" id="exampleModalLabel">Sign Up</h4>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"  aria-hidden="true">&times;
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
         </button>
       </div>
       <div class="modal-body">
 		
 		<!-- form starts here -->
-    <form action="<?php echo htmlentities($_SERVER['PHP_SELF']); ?>" method="POST" id="registration">
+      	<form action="<?php echo htmlentities($_SERVER['PHP_SELF']); ?>" method="POST">
 		  <div class="form-row">
 		    <div class="col-6">
-		    <input type="text" class="form-control" placeholder="First Name" name="userFirstName" >
-				<?php echo $fNameErr; ?>
+		    <input type="text" class="form-control" placeholder="First Name" name="userFirstName">
 		  </div>
 		    <div class="col-6">
-		      <input type="text" class="form-control" placeholder="Last Name" name="userLastName" >
-					 <?php echo $LNameErr; ?>
+		      <input type="text" class="form-control" placeholder="Last Name" name="userLastName">
 		    </div>
 		  </div>
 		  <br>
 		  <div class="form-row row">
 		    <div class="col">
-		    	<input type="email" class="form-control" name="userEmail" placeholder="Email" >
-					 <?php echo $emailErr; ?>
+		    	<input type="email" class="form-control" name="userEmail" placeholder="Email">
 		    </div>
 		  </div>
 		  <br>
 		  <div class="form-row row">
 		    <div class="col">
-		    	<input type="password" class="form-control" name="userPassword" placeholder="Password" >
-				 <?php echo $passwdErr; ?>
+		    	<input type="password" class="form-control" name="userPassword" placeholder="Password">
 		    </div>
 		  </div>
 		  <br>
 		  <div class="form-row">
 		    <div class="col-6">
-		      <input type="number" class="form-control" placeholder="Age" name="userAge" min="1" >
-					<?php echo $ageErr; ?>
+		      <input type="number" class="form-control" placeholder="Age" name="userAge" min="1">
 		    </div>
 		    <div class="col-6">
-		      <input type="text" class="form-control" placeholder="Credit Card Number" name="userCCNum" >
-					 <?php echo $ccNumErr; ?>
+		      <input type="text" class="form-control" placeholder="Credit Card Number" name="userCCNum">
 		    </div>
 		  </div>
 		  <br>
 		   <div class="form-row">
 		    <div class="col">
-		      <input type="text" class="form-control" placeholder="Address" name="userAddress" >
-					 <?php echo $addressErr; ?>
+		      <input type="text" class="form-control" placeholder="Address" name="userAddress">
 		    </div>
 		  </div>
 		  <br>
 		  <div class="form-row">
 		    <div class="col">
-				<img id="proPic" src="http://placehold.it/180" alt="your image" />
-				<input type='file' onchange="previewProfilePic(this);" name="profilePic">
+				<img id="blah" src="http://placehold.it/180" alt="your image" />
+				<input type='file' onchange="readURL(this);" name="profilePic">
 		    </div>
 		  </div>
 		  <br>
 		 <div class="d-flex justify-content-between">
-		 <button type="submit" class="btn btn-primary" name="registerBtn" id="registerBtn">Register</button>
+		 <button type="button float-right" class="btn btn-primary" href="#" id="registerBtn">Register</button>
 		  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
 		</div>
 		</form>
       </div>
+      <div class="modal-footer">
+			
+			</div>
     </div>
   </div>
 </div>
 
 
 	<div class="container container-body">
-		<form action="viewFlights.php" method="POST">
+		<form action="" method="POST">
 			<div class="form-row">
 				<div class="col">
 					<center>
@@ -367,19 +397,19 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 		    </div>
 		    <div class="col-6">
 		    	Return
-		      <input type="date" id="return" class="form-control return" style="width: 100%" name="returnDate">
+		      <input type="date" id="returnDate" class="form-control return" style="width: 100%" name="returnDate">
 		    </div>
 		  </div>
 		  <br>
 		  <div class="form-row">
 		    <div class="col">
 		    	Number Of Passengers
-		      <input type="number" class="form-control" max="10" min="1">
+		      <input type="number" class="form-control" max="10" min="1" name="passenger">
 		    </div>
 		  </div>
 		  <br>
 		  <center>
-		  <input class="btn btn-primary btn-lg btn-block" type="submit" value="Search">
+		  <input type="submit" class="btn btn-primary btn-lg btn-block" name="bookBtn" value="Book" />
 		  </center>
 		</form>
 	</div>
@@ -387,30 +417,31 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 
 	</div>
 
-	<script type="text/javascript">
-		//Function that disables text box based on type of trip selected
+	<script type="text/javascript"> 
+
 		function disablefield(){ 
 			if (document.getElementById('option2').checked == 1){ 
-				document.getElementById('return').disabled='disabled';
-				document.getElementById('return').value='disabled'; 
+				document.getElementById('returnDate').disabled='disabled';
+				document.getElementById('returnDate').value='disabled'; 
 			}else{ 
-				document.getElementById('return').disabled=''; 
-				document.getElementById('return').value='Allowed';
+				document.getElementById('returnDate').disabled=''; 
+				document.getElementById('returnDate').value='Allowed';
 			} 
 		}
-		// Function to show the preview of the user profile
-		function previewProfilePic(input) {
+
+		function readURL(input) {
             if (input.files && input.files[0]) {
                 var reader = new FileReader();
                 reader.onload = function (e) {
-                    $('#proPic')
+                    $('#blah')
                         .attr('src', e.target.result);
                 };
                 reader.readAsDataURL(input.files[0]);
             }
         } 
 	</script>
-
+	
+	<!---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------> 
 	<!--Scripts for form validation-->
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 
@@ -423,5 +454,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 
+	<!---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------> 
+	
 </body>
 </html>
