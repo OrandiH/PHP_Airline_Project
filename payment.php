@@ -3,16 +3,32 @@
 ?>
 
 <?php
+	//set local variables empty 
+	$email = $pswd  = $payment = $discount = "";
+	
 	//calculate discount if user exist
 	function processDiscount($payment)
 	{
-		$discount = $payment * 0.2;
-		return $discount;
+		$dis = $payment * 0.2;
+		return $dis;
 	} //end processDiscount
 	
+	$email = $_SESSION['user_info']['userEmail']; 
+	$pswd = $_SESSION['user_info']['userPassword']; 
+	$payment = $_SESSION['flight_cost']['flight_charge']; 
+	
+	if ($email != "" && $pswd != "")
+	{
+		//exist customer discount calculation
+		$discount = processDiscount($payment);
+		$payment = $payment + $discount;
+	} //end if
+	else
+	{
+		
+	} //end else
+	
 ?>
-
-
 
 
 <!DOCTYPE html>
@@ -28,13 +44,21 @@
 
 	<!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdn.rawgit.com/twbs/bootstrap/v4-dev/dist/css/bootstrap.css">
+	<style>
+		/* Gradient transparent - color - transparent */
+		hr {
+			border: 0;
+			height: 3px;
+			background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));
+		}
+	</style>
 </head>
 <body background="assets/images/home.jpg" >
 	
 	<div class="container-fluid">
 		<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top" role="navigation">
 			<div class="container">
-				<h6 style="color: white; font-size: 30px;">Payment Details</h6>
+				<h6 style="color: white; font-size: 30px;">PAYMENT INFORMATION</h6>
 				<button class="navbar-toggler border-0" type="button" data-toggle="collapse" data-target="#exCollapsingNavbar">
 					&#9776;
 				</button>
@@ -46,8 +70,13 @@
 			</div>
 		</nav>
 	</div>
+	<br><br><br>
+	<!-- form starts here -->
+	<form action="flight.php" method="POST">
+		<hr/>
+	</form>
 	
-
+	
 	<!---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------> 
 	<!-- jQuery first, then Bootstrap JS. -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>

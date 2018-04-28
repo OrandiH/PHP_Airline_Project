@@ -22,8 +22,7 @@
 			color: teal;
 			font-family: Helvetica, Arial, sans-serif;
 			width: 100%; 
-			border-collapse: 
-			collapse; border-spacing: 0; 
+			border: 3px solid #ddd; 
 		}
 
 		td, th {  
@@ -60,6 +59,13 @@
 			text-align: center;
 			font-size: 16px;
 		}
+		
+		/* Gradient transparent - color - transparent */
+		hr {
+			border: 0;
+			height: 3px;
+			background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));
+		}
 	</style>
 </head>
 <body background="assets/images/home.jpg" >
@@ -79,11 +85,11 @@
 			</div>
 		</nav>
 	</div>
-	<br><br> <br><br><br><br>
+	<br><br> <br><br><br>
 	
 	<!-- form starts here -->
 	<form action="flight.php" method="POST">
-		<div class="container" style="width: 100%; height: 500px;; background-color: ivory;">
+		<div class="container" style="width: 100%; height: 500px;; background-color: ivory; border: 3px solid #ddd; border-radius: 7px;">
 			<br>
 			<h2 style="text-align: center; color: blue;">SCROLL TO VIEW CITIES<h2>
 			<div class="row">
@@ -160,59 +166,55 @@
 	
 	<div style="margin: 0px;">
 		<?php
-				//calculate discount if user exist
-				function processDiscount($payment)
-				{
-					$discount = $payment * 0.2;
-					return $discount;
-				} //end processDiscount	
 					
-				//local variables
-				$depCit = $desCity = $dDate = $msg = $trip = $var = "";
+			//local variables
+			$depCit = $desCity = $dDate = $msg = $trip = $var = "";
 				
-				//set values  
-				//$trip = $_SESSION['book_info']['tripType'];
-				$depCit = $_SESSION['book_info']['departure'];
-				$desCity = $_SESSION['book_info']['arrival'];
-				$dDate =  $_SESSION['book_info']['departDate'];
-				$rDate =  $_SESSION['book_info']['returnDate'];
+			//set values  
+			//$trip = $_SESSION['book_info']['tripType'];
+			$depCit = $_SESSION['book_info']['departure'];
+			$desCity = $_SESSION['book_info']['arrival'];
+			$dDate =  $_SESSION['book_info']['departDate'];
+			$rDate =  $_SESSION['book_info']['returnDate'];
 				
-				//oneway trip flight search
-				if($depCit != "" && $desCity != "" && $dDate!= "") 
-				{
-					try {
-						//database connection
-						include("connection.php");
+			//oneway trip flight search
+			if($depCit != "" && $desCity != "" && $dDate!= "") 
+			{
+				try {
+					//database connection
+					include("connection.php");
 						
-						//search database for user
-						$query = "select * from flight where depatureCity='$depCit' and destinationCity='$desCity' and depatureDate='$dDate'";					
-						$stmt = $conn->prepare($query);
-						$stmt->bindParam('depatureCity', $depCit, PDO::PARAM_STR);
-						$stmt->bindValue('destination', $desCity, PDO::PARAM_STR);
-						$stmt->bindValue('depatureDate', $dDate, PDO::PARAM_STR);
-						$stmt->execute();
-						$count = $stmt->rowCount();
-						$row   = $stmt->fetch(PDO::FETCH_ASSOC);
+					//search database for user
+					$query = "select * from flight where depatureCity='$depCit' and destinationCity='$desCity' and depatureDate='$dDate'";					
+					$stmt = $conn->prepare($query);
+					$stmt->bindParam('depatureCity', $depCit, PDO::PARAM_STR);
+					$stmt->bindValue('destination', $desCity, PDO::PARAM_STR);
+					$stmt->bindValue('depatureDate', $dDate, PDO::PARAM_STR);
+					$stmt->execute();
+					$count = $stmt->rowCount();
+					$row   = $stmt->fetch(PDO::FETCH_ASSOC);
 					  
-						//validates if matchig flight was found
-						if($count > 0 && !empty($row)) 
-						{
-							/******************** Display available flights***********************/
-							$fl_msg = "<label style='color: blue'> CHOOSE YOUR FLIGHT OPTION...!</label>";
-							echo "<br>";
-							echo $fl_msg;
+					//validates if matchig flight was found
+					if($count > 0 && !empty($row)) 
+					{
+						/******************** Display available flights***********************/
+						$fl_msg = "<label style='color: blue; font-size: 25px; margin: 0px;'> CHOOSE YOUR FLIGHT OPTION...!</label>";
+						echo "<br>";
+						echo "<hr>";
+						echo $fl_msg;
+						echo "<hr>";
 							
-							//table header here
-							echo "<table>";
-								echo "<tr>";
-									echo "<th>FLIGHT ID</th>"; 
-									echo "<th>FLIGHT NAME</th>"; 
-									echo "<th>DEPATURE CITY</th>";
-									echo "<th>DESTINATION CITY</th>";
-									echo "<th>DEPATUREDATE</th>";
-									echo "<th>AMOUNTOFSEATS</th>";
-									echo "<th>OPTION</th>";
-								echo "</tr>";
+						//table header here
+						echo "<table>";
+							echo "<tr>";
+								echo "<th>FLIGHT ID</th>"; 
+								echo "<th>FLIGHT NAME</th>"; 
+								echo "<th>DEPATURE CITY</th>";
+								echo "<th>DESTINATION CITY</th>";
+								echo "<th>DEPATUREDATE</th>";
+								echo "<th>AMOUNTOFSEATS</th>";
+								echo "<th>OPTION</th>";
+							echo "</tr>";
 							
 							while($row = $stmt->fetch(PDO::FETCH_ASSOC)) 
 							{					
@@ -233,60 +235,64 @@
 							unset($result);
 							
 							if(isset($_GET['selectBtn'])){
-								//$var = $_SESSION['val'];
-								header("location:index.php");
+								$var = $_GET['flightID'];
+								echo $var;
+								//header("location:index.php");
 							}
-						} // end if
-						else
-						{
-							$msg = '<label style="color:red">No flights are available for that date...!</label>';
-						} //end else
-									
-						//close database connection
-						$conn = null;
-					} 
-					catch (PDOException $e) 
+					} // end if
+					else
 					{
-						$msg = "Error : ".$e->getMessage();
-					} //end catch
-				}  //end if
-				else if ($depCit != "" && $desCity != "" && $dDate != "" && $rDate != ""  )
+						$msg = '<label style="color:red; font-size: 25px; margin: 0px;">No flights are available for that date...!</label>';
+					} //end else
+									
+				//close database connection
+				$conn = null;
+				
+				} //end try
+				catch (PDOException $e) 
 				{
-					//round trip flight search
-					try {
-						//database connection
-						include("connection.php");
+					$msg = "Error : ".$e->getMessage();
+				} //end catch
+			}  //end if
+			else if ($depCit != "" && $desCity != "" && $dDate != "" && $rDate != ""  )
+			{
+				//round trip flight search
+				try {
+					//database connection
+					include("connection.php");
 						
-						//search database for user
-						$query = "select * from flight where depatureCity='$depCit' and destinationCity='$desCity' and depatureDate='$dDate' and returnDate ='rDate'";					
-						$stmt = $conn->prepare($query);
-						$stmt->bindParam('depatureCity', $depCit, PDO::PARAM_STR);
-						$stmt->bindValue('destination', $desCity, PDO::PARAM_STR);
-						$stmt->bindValue('depatureDate', $dDate, PDO::PARAM_STR);
-						$stmt->bindValue('returnDate', $rDate, PDO::PARAM_STR);
-						$stmt->execute();
-						$count = $stmt->rowCount();
-						$row   = $stmt->fetch(PDO::FETCH_ASSOC);
+					//search database for user
+					$query = "select * from flight where depatureCity='$depCit' and destinationCity='$desCity' and depatureDate='$dDate' and returnDate ='rDate'";					
+					$stmt = $conn->prepare($query);
+					$stmt->bindParam('depatureCity', $depCit, PDO::PARAM_STR);
+					$stmt->bindValue('destination', $desCity, PDO::PARAM_STR);
+					$stmt->bindValue('depatureDate', $dDate, PDO::PARAM_STR);
+					$stmt->bindValue('returnDate', $rDate, PDO::PARAM_STR);
+					$stmt->execute();
+					$count = $stmt->rowCount();
+					$row   = $stmt->fetch(PDO::FETCH_ASSOC);
 					  
-						//validates if matchig flight was found
-						if($count > 0 && !empty($row)) 
-						{
-							/******************** Display available flights***********************/
-							$fl_msg = "<label style='color: blue'> CHOOSE YOUR FLIGHT OPTION...!</label>";
-							echo "<br>";
-							echo $fl_msg;
+					//validates if matchig flight was found
+					if($count > 0 && !empty($row)) 
+					{
+						/******************** Display available flights***********************/
+						$fl_msg = "<label style='color: blue'> CHOOSE YOUR FLIGHT OPTION...!</label>";
+						echo "<br>";
+						echo "<hr>";
+						echo $fl_msg;
+						echo "<hr>";
 							
-							//table header here
-							echo "<table>";
-								echo "<tr>";
-									echo "<th>FLIGHT ID</th>"; 
-									echo "<th>FLIGHT NAME</th>"; 
-									echo "<th>DEPATURE CITY</th>";
-									echo "<th>DESTINATION CITY</th>";
-									echo "<th>DEPATUREDATE</th>";
-									echo "<th>RETURNDATE</th>";
-									echo "<th>AMOUNTOFSEATS</th>";
-									echo "<th>OPTION</th>";
+						//table header here
+						echo "<table>";
+							echo "<tr>";
+								echo "<th>FLIGHT ID</th>"; 
+								echo "<th>FLIGHT NAME</th>"; 
+								echo "<th>DEPATURE CITY</th>";
+								echo "<th>DESTINATION CITY</th>";
+								echo "<th>DEPATUREDATE</th>";
+								echo "<th>RETURNDATE</th>";
+								echo "<th>AMOUNTOFSEATS</th>";
+								echo "<th>OPTION</th>";
 								echo "</tr>";
 							
 							while($row = $stmt->fetch(PDO::FETCH_ASSOC)) 
@@ -304,41 +310,41 @@
 									
 								echo "</tr>";
 								} //end while
-							echo "</table>";
+						echo "</table>";
 							
-							// Free result set
-							unset($result);
+						// Free result set
+						unset($result);
 							
-							if(isset($_GET['selectBtn'])){
-								//$var = $_SESSION['val'];
-								header("location:index.php");
-							}
-						} // end if
-						else
-						{
-							$msg = '<label style="color:red">No flights are available for that date...!</label>';
-						} //end else
+						if(isset($_POST['selectBtn'])){
+							$var = $_GET['flightID'];
+							echo $var;
+							header("location:index.php");
+						} //end if
+					} // end if
+					else
+					{
+						$msg = '<label style="color:red">No flights are available for that date...!</label>';
+					} //end else
 									
 						//close database connection
 						$conn = null;
-					} 
-					catch (PDOException $e) 
-					{
-						$msg = "Error : ".$e->getMessage();
-					} //end catch
-					
-				} //end else if
-				else 
+				} //end try
+				catch (PDOException $e) 
 				{
-					$msg = '<label style="color:red">You MUST enter your fligh details first...!</label>';
-				} //end else	
+					$msg = "Error : ".$e->getMessage();
+				} //end catch
 					
-				echo"<br>";
-				echo $msg;
+			} //end else if
+			else 
+			{
+				$msg = '<label style="color:red">You MUST enter your fligh details first...!</label>';
+			} //end else	
 					
+			echo"<br>";
+			echo $msg;
 		?>
 	</div>
-
+	
 	<!---------------------------------------- script for table row values ---------------------------------->
 	<script>
     
@@ -349,15 +355,24 @@
             table.rows[i].onclick = function()
             {
                 //rIndex = this.rowIndex;
-                document.getElementById("flightID").value = this.cells[0].innerHTML;
+                document.getElementB"flightID").value = this.cells[0].innerHTML;
                 document.getElementById("flightName").value = this.cells[1].innerHTML;
                 document.getElementById("depatureCity").value = this.cells[2].innerHTML;
 				document.getElementById("destinationCity").value = this.cells[3].innerHTML;
                 document.getElementById("destinationCity").value = this.cells[4].innerHTML;
                 document.getElementById("depatureDate").value = this.cells[5].innerHTML;
 				document.getElementById("returnDate").value = this.cells[6].innerHTML;
-                };
 				
+					//session variable to store flight details
+					$_SESSION['fligt_info'] = array(
+						'flightID' => this.cells[0].innerHTML, 
+						'flightName' => this.cells[1].innerHTML,
+						'depatureCity' => this.cells[2].innerHTML,
+						'destinationCity' => this.cells[3].innerHTML,
+						'depatureDate' => this.cells[4].innerHTML,
+						'AmountOfSeats' => this.cells[5].innerHTML,
+					);
+                };
         } //end for
 		
     </script>
