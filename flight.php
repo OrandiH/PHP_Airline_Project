@@ -7,12 +7,16 @@
 	//local variables
 	$depCit = $desCity = $dDate = $msg = $trip = $var = "";
 		
-	//set values  
+	//set flight search values  
 	$trip = $_SESSION['book_info']['tripType'];
 	$depCit = $_SESSION['book_info']['departure'];
 	$desCity = $_SESSION['book_info']['arrival'];
 	$dDate =  $_SESSION['book_info']['departDate'];
 	$rDate =  $_SESSION['book_info']['returnDate'];
+	
+	//set session values for payment
+	$_SESSION['flight_info']['tripType'] = $trip;
+	
 ?>				
 
 <!DOCTYPE html>
@@ -29,13 +33,27 @@
 	<!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdn.rawgit.com/twbs/bootstrap/v4-dev/dist/css/bootstrap.css">
 	
+	<script language="javascript" type="text/javascript">
+		function showRow(row)
+		{
+		var x=row.cells;
+		document.getElementById("fID").value = x[0].innerHTML;
+		document.getElementById("fName").value = x[1].innerHTML;
+		document.getElementById("depature").value = x[2].innerHTML;
+		document.getElementById("destination").value = x[3].innerHTML;
+		document.getElementById("dDate").value = x[4].innerHTML;
+		document.getElementById("AmountOfSeats").value = x[5].innerHTML;
+		document.getElementById("AmountOfSeats").value = x[6].innerHTML;
+		}
+	</script>
+	
 	<style>
 		table { 
 			font-size: 15px;
 			color: teal;
+			margin: auto;
 			background: rgba(255, 255, 255, 0.75);
 			font-family: Helvetica, Arial, sans-serif;
-			width: 100%;  
 		}
 		
 		td, th {  
@@ -111,9 +129,6 @@
 			font-size: 25px;
 		}
 		
-		button:focus {
-		outline: 0;
-	}
 	</style>
 </head>
 <body background="assets/images/home.jpg" >
@@ -217,7 +232,7 @@
 	<div style="margin: 0px;">
 		<?php
 			//validates oneway trip flight search
-			if($trip != "" && $trip = "on"){
+			if($trip != "" && $trip = "oneway"){
 				if($depCit != "" && $desCity != "" && $dDate!= "") 
 				{
 					try {
@@ -252,7 +267,7 @@
 							echo "<hr>";
 								
 							//table header here
-							echo "<table id='table'>";
+							echo "<table id='tbl' class='table-sm'>";
 								echo "<tr>";
 									echo "<th>FLIGHT ID</th>"; 
 									echo "<th>FLIGHT NAME</th>"; 
@@ -261,19 +276,21 @@
 									echo "<th>DEPATUREDATE</th>";
 									echo "<th>AMOUNTOFSEATS</th>";
 									echo "<th>COST</th>";
+									
 								echo "</tr>";
 								
 								while($row = $stmt->fetch(PDO::FETCH_ASSOC)) 
 								{					
 									//out record from database								
-									echo "<tr>";
+									echo "<tr onclick='javascript:showRow(this);'>";
 										echo "<td>" . $row['flightID'] . "</td>";
 										echo "<td>" . $row['flightName'] . "</td>";
 										echo "<td>" . $row['depatureCity']. "</td>";
 										echo "<td>" . $row['destinationCity']. "</td>";
 										echo "<td>" . $row['depatureDate']. "</td>";
 										echo "<td>" . $row['AmountOfSeats']. "</td>";
-										echo "<td>" . $row['cost']. "</td>";								
+										echo "<td>" . $row['cost']. "</td>";
+										
 									echo "</tr>";
 									} //end while
 								echo "</table>";
@@ -297,88 +314,91 @@
 					} //end catch
 				}  //end if
 			}	//end if
-			else if ($depCit != "" && $desCity != "" && $dDate != "" && $rDate != ""  )
+			//validates round trip flight search
+			else if ($trip != "" && $trip = "round trip") 
 			{
-				
-				//round trip flight search
-				try {
-					//database connection
-					include("connection.php");
-					
-					//search parameters
-					$string1 = "select flight_cost.flightID,flightName,depatureCity,destinationCity,depatureDate,returnDate,AmountOfSeats,cost";
-					//join parameters
-					$string2 = "join flight_cost on flight.flightID = flight_cost.flightID";
-					//where parameters
-					$string3 = "depatureCity='$depCit' and destinationCity='$desCity' and depatureDate='$dDate' and returnDate ='rDate'";
-							
-					//search database for matchig flights
-					$query = "$string1 from flight $string2 where $string3";					
-					$stmt = $conn->prepare($query);
-					$stmt->bindParam('depatureCity', $depCit, PDO::PARAM_STR);
-					$stmt->bindValue('destination', $desCity, PDO::PARAM_STR);
-					$stmt->bindValue('depatureDate', $dDate, PDO::PARAM_STR);
-					$stmt->bindValue('returnDate', $rDate, PDO::PARAM_STR);
-					$stmt->execute();
-					$count = $stmt->rowCount();
-					$row   = $stmt->fetch(PDO::FETCH_ASSOC);
-					  
-					//validates if matchig flight was found
-					if($count > 0 && !empty($row)) 
-					{
-						/******************** Display available flights***********************/
-						$fl_msg = "<h6> CHOOSE YOUR FLIGHT OPTION...!</h6>";
-						echo "<br>";
-						echo "<hr>";
-						echo $fl_msg;
-						echo "<hr>";
-							
-						//table header here
-						echo "<table id='table'>";
-							echo "<tr>";
-								echo "<th>FLIGHT ID</th>"; 
-								echo "<th>FLIGHT NAME</th>"; 
-								echo "<th>DEPATURE CITY</th>";
-								echo "<th>DESTINATION CITY</th>";
-								echo "<th>DEPATUREDATE</th>";
-								echo "<th>RETURNDATE</th>";
-								echo "<th>AMOUNTOFSEATS</th>";
-								echo "<th>COST</th>";
-								echo "</tr>";
-							
-							while($row = $stmt->fetch(PDO::FETCH_ASSOC)) 
-							{					
-								//out record from database								
-								echo "<tr>";
-									echo "<td>" . $row['flightID'] . "</td>";
-									echo "<td>" . $row['flightName'] . "</td>";
-									echo "<td>" . $row['depatureCity']. "</td>";
-									echo "<td>" . $row['destinationCity']. "</td>";
-									echo "<td>" . $row['depatureDate']. "</td>";
-									echo "<td>" . $row['returnDate']. "</td>";
-									echo "<td>" . $row['AmountOfSeats']. "</td>";
-									echo "<td>" . $row['cost']. "</td>";
-								echo "</tr>";
-								} //end while
-						echo "</table>";
-							
-						// Free result set
-						unset($result);
-						
-					} //else if
-					else
-					{
-						$msg = '<label style="color:red">No flights are available for that date...!</label>';
-					} //end else
-									
-						//close database connection
-						$conn = null;
-				} //end try
-				catch (PDOException $e) 
+				if($depCit != "" && $desCity != "" && $dDate != "" && $rDate != ""  )
 				{
-					$msg = "Error : ".$e->getMessage();
-				} //end catch
-					
+					//round trip flight search
+					try {
+						//database connection
+						include("connection.php");
+						
+						//search parameters
+						$string1 = "select flight_cost.flightID,flightName,depatureCity,destinationCity,depatureDate,returnDate,AmountOfSeats,cost";
+						//join parameters
+						$string2 = "join flight_cost on flight.flightID = flight_cost.flightID";
+						//where parameters
+						$string3 = "depatureCity='$depCit' and destinationCity='$desCity' and depatureDate='$dDate' and returnDate ='rDate'";
+								
+						//search database for matchig flights
+						$query = "$string1 from flight $string2 where $string3";					
+						$stmt = $conn->prepare($query);
+						$stmt->bindParam('depatureCity', $depCit, PDO::PARAM_STR);
+						$stmt->bindValue('destination', $desCity, PDO::PARAM_STR);
+						$stmt->bindValue('depatureDate', $dDate, PDO::PARAM_STR);
+						$stmt->bindValue('returnDate', $rDate, PDO::PARAM_STR);
+						$stmt->execute();
+						$count = $stmt->rowCount();
+						$row   = $stmt->fetch(PDO::FETCH_ASSOC);
+						  
+						//validates if matchig flight was found
+						if($count > 0 && !empty($row)) 
+						{
+							/******************** Display available flights***********************/
+							$fl_msg = "<h6> CHOOSE YOUR FLIGHT OPTION...!</h6>";
+							echo "<br>";
+							echo "<hr>";
+							echo $fl_msg;
+							echo "<hr>";
+								
+							//table header here
+							echo "<table id='tbl' class='table-sm'>";
+								echo "<tr>";
+									echo "<th>FLIGHT ID</th>"; 
+									echo "<th>FLIGHT NAME</th>"; 
+									echo "<th>DEPATURE CITY</th>";
+									echo "<th>DESTINATION CITY</th>";
+									echo "<th>DEPATUREDATE</th>";
+									echo "<th>RETURNDATE</th>";
+									echo "<th>AMOUNTOFSEATS</th>";
+									echo "<th>COST</th>";
+									echo "</tr>";
+								
+								while($row = $stmt->fetch(PDO::FETCH_ASSOC)) 
+								{					
+									//out record from database								
+									echo "<tr onclick='javascript:showRow(this);'>>";
+										echo "<td>" . $row['flightID'] . "</td>";
+										echo "<td>" . $row['flightName'] . "</td>";
+										echo "<td>" . $row['depatureCity']. "</td>";
+										echo "<td>" . $row['destinationCity']. "</td>";
+										echo "<td>" . $row['depatureDate']. "</td>";
+										echo "<td>" . $row['returnDate']. "</td>";
+										echo "<td>" . $row['AmountOfSeats']. "</td>";
+										echo "<td>" . $row['cost']. "</td>";
+									echo "</tr>";
+									} //end while
+							echo "</table>";
+								
+							// Free result set
+							unset($result);
+							
+						} //else if
+						else
+						{
+							$msg = '<label style="color:red">No flights are available for that date...!</label>';
+						} //end else
+										
+							//close database connection
+							$conn = null;
+					} //end try
+					catch (PDOException $e) 
+					{
+						$msg = "Error : ".$e->getMessage();
+					} //end catch
+						
+				} //end if
 			} //end else if
 			else 
 			{
@@ -387,7 +407,7 @@
 					
 			echo"<br>";
 			echo $msg;
-			
+			/*
 			if($_SERVER["REQUEST_METHOD"] == "POST")
 			{
 				if(isset($_POST['confirmBtn']))
@@ -395,6 +415,7 @@
 					header("location:payment.php");
 				}
 			}
+			*/
 		?>
 	</div>
 	
@@ -408,34 +429,34 @@
 	<form action="flight.php" method="POST">
 		<div class="form-row">
 			<div class="col-6">
-				FLIGHT ID: <input type="text" id="fID" class="form-control" name="fID">
+				FLIGHT ID <input type="text" id="fID" class="form-control" name="fID">
 			</div>
 			<div class="col-6">
-				FLIGHT NAME: <input type="text" id="fName" class="form-control" name="fName">
-			</div>
-		</div>
-		<br>
-		<div class="form-row">
-			<div class="col-6">
-				DEPART FROM: <input type="text" id="depature" class="form-control" name="depature">
-			</div>
-			<div class="col-6">
-				DEPART TO: <input type="text" id="destination" class="form-control" name="destination">
+				FLIGHT NAME <input type="text" id="fName" class="form-control" name="fName">
 			</div>
 		</div>
 		<br>
 		<div class="form-row">
 			<div class="col-6">
-				DEPARTURE DATE: <input type="text" id="dDate" class="form-control" name="dDate">
+				DEPART FROM <input type="text" id="depature" class="form-control" name="depature">
 			</div>
 			<div class="col-6">
-				SEATS: <input type="text" id="AmountOfSeats" class="form-control" name="AmountOfSeats">
+				DEPART TO <input type="text" id="destination" class="form-control" name="destination">
+			</div>
+		</div>
+		<br>
+		<div class="form-row">
+			<div class="col-6">
+				DEPARTURE DATE <input type="text" id="dDate" class="form-control" name="dDate">
+			</div>
+			<div class="col-6">
+				SEATS <input type="text" id="AmountOfSeats" class="form-control" name="AmountOfSeats">
 			</div>
 		</div>
 		<div class="form-row">
 		    <div class="col-6">
 		    	
-		      COST: <input type="text" id="cost" class="form-control" name="cost">
+		      COST <input type="text" id="cost" class="form-control" name="cost">
 		    </div>
 		</div>
 		<div class="col" align="right" >
@@ -446,28 +467,50 @@
 	
 	<!---------------------------------------- script for table row values ---------------------------------->
     
-       <script>
-		
-			var table = document.getElementById('table');
-                
-			for(var i = 1; i < table.rows.length; i++)
-			{
-				table.rows[i].onclick = function()
-				{
-					//rIndex = this.rowIndex;
-					document.getElementB"fID").value = this.cells[0].innerHTML;
-					document.getElementById("fName").value = this.cells[1].innerHTML;
-					document.getElementById("depature").value = this.cells[2].innerHTML;
-					document.getElementById("destination").value = this.cells[3].innerHTML;
-					document.getElementById("dDate").value = this.cells[4].innerHTML;
-					document.getElementById("seats").value = this.cells[5].innerHTML;
-					document.getElementById("cost").value = this.cells[6].innerHTML;
-					};
-			} //end for
-    
-         </script>
-		
-    </script>
+   <script>
+		(function () {
+			if (window.addEventListener) {
+				window.addEventListener('load', run, false);
+			} else if (window.attachEvent) {
+				window.attachEvent('onload', run);
+			}
+
+		function run() {
+			var t = document.getElementById('tble');
+			t.onclick = function (event) {
+            event = event || window.event; //IE8
+            var target = event.target || event.srcElement;
+            while (target && target.nodeName != 'TR') { // find TR
+                target = target.parentElement;
+            }
+            //if (!target) { return; } //tr should be always found
+            var cells = target.cells; //cell collection 
+            //var cells = target.getElementsByTagName('td'); //alternative
+            if (!cells.length || target.parentNode.nodeName == 'THEAD') {
+                return;
+            } //end if
+			
+            var f1 = document.getElementById('fID');
+			var f2 = document.getElementById('fName');
+			var f3 = document.getElementById('depature');
+			var f4 = document.getElementById('destination');
+			var f5 = document.getElementById('dDate');
+			var f6 = document.getElementById('AmountOfSeats');
+			var f7 = document.getElementById('cost');
+			
+			f1.value = cells[0].innerHTML;
+			f2.value = cells[1].innerHTML;
+			f3.value = cells[2].innerHTML;
+			f4.value = cells[3].innerHTML;
+			f5.value = cells[4].innerHTML;
+			f6.value = cells[5].innerHTML;
+			f7.value = cells[6].innerHTML;
+            //console.log(target.nodeName, event);
+			};
+		}
+
+		})();
+	</script>
 
 	<!---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------> 
 	<!-- jQuery first, then Bootstrap JS. -->

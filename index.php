@@ -185,9 +185,6 @@
 				echo '<div class="alert alert-success">
 				  <strong>Success!</strong> Record Added
 				</div>';
-				
-				//direct user to flight page
-				header("location:payment.php");
 
 				//header('Refresh: 2; URL=index.php');
 
@@ -196,6 +193,11 @@
 			}
 				$conn = null;//Close connection to db
 			} //end if
+			else if(isset($_POST['loginBtn']))
+			{
+				//direct user to flight page
+				header("location:flight.php");
+			}
 			else if(isset($_POST['bookBtn'])){
 				//Collect and clean booking data here
 				$tripType = cleanInputs($_POST['tripType']);
@@ -273,7 +275,7 @@
 									  </div>
 									  <br>
 										<div class="form-group">
-											<button type="submit" class="btn btn-primary btn-block">Login</button>
+											<button type="submit" name="loginBtn" class="btn btn-primary btn-block">Login</button>
 										</div>
 										<center>
 										<div class="form-group text-xs-center">

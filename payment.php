@@ -7,6 +7,9 @@
 	$email = $pswd = $status = "";
 	$payment = $discount = $no_Of_Person = $ticket_Cost = "";
 	
+	$email = $_SESSION['user_info']['userEmail'];
+	$pswd = $_SESSION['user_info']['userPassword'];
+	
 	//Calculate ticket cost
 	function flightCost($no_Of_Person, $ticket_Cost)
 	{
@@ -33,18 +36,22 @@
 	//check if customer exist 
 	if ($email != "" && $pswd != "")
 	{
-		$status = 1;
+		include("connection.php");
+		
+		$status = 0;
 		//registered customer discount calculation
 		$discount = processDiscount($payment);
 		$payment = flightCost($no_Of_Person, $ticket_Cost) + $discount;
 	} //end if
 	else
 	{
-		$status = 0;
+		$status = 1;
 		//no discount for non-registered customer
 		$payment = flightCost($no_Of_Person, $ticket_Cost);
 	} //end else
-	
+		
+	//test status
+	$status = 1;
 ?>
 
 
@@ -105,7 +112,7 @@
 	
 	<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top" role="navigation">
 	    <div class="container">
-	        <h3>FLIGHT OPTION</h3>
+	        <h3>FLIGHT PAYMENT</h3>
 	        <button class="navbar-toggler border-0" type="button" data-toggle="collapse" data-target="#exCollapsingNavbar">
 	            &#9776;
 	        </button>
@@ -122,61 +129,68 @@
 	</nav>
 	<br><br>
 	
-	<div class="modal-body">
-		<h5>PAYMENT INFRORMATION</h5>
-		<hr/>
-		<!-- form starts here -->
-		<form action="" method="POST">
-			<div class="form-row">
-				<div class="col-6">
-					<input type="text" class="form-control" placeholder="First Name" name="userFirstName">
-				</div>
-				<div class="col-6">
-					<input type="text" class="form-control" placeholder="Last Name" name="userLastName">
-				</div>
+	<?php
+		//form to collect not existing customer information
+		if( $status == 1)
+		{
+			echo "
+			<div class='modal-body'>
+				<h5>PAYMENT INFRORMATION</h5>
+				<hr/>
+				<!-- form starts here -->
+				<form action='' method='POST'>
+					<div class='form-row'>
+						<div class='col-6'>
+							<input type='text' class='form-control' placeholder='First Name' name='userFirstName'>
+						</div>
+						<div class='col-6'>
+							<input type='text' class='form-control' placeholder='Last Name' name=userLastName'>
+						</div>
+					</div>
+					<br>
+					<div class='form-row row'>
+						<div class='col'>
+							<input type='email' class='form-control' name='userEmail' placeholder='Email'>
+						</div>
+					</div>
+					<br>
+					<div class='form-row row'>
+						<div class='col'>
+							<input type='password' class='form-control' name='userPassword' placeholder='Password'>
+						</div>
+					</div>
+					<br>
+					<div class='form-row'>
+						<div class='col-6'>
+							<select class='form-control placeholder'>
+							   <option value=''>Select Card Type</option>
+							   <option value='1'>American Express</option>
+							   <option value='2'>MasterCard</option>
+							   <option value='3'>Discover</option>
+							   <option value='4'>Visa</option>
+							   <option value='5'>PayPal</option>
+							</select>
+						</div>
+						<div class='col-6'>
+						  <input type='text' class='form-control' placeholder='Credit Card Number' name='userCCNum'>
+						</div>
+					</div>
+					<br>
+					<div class='form-row'>
+						<div class='col'>
+						  <input type='text' class='form-control' placeholder='Address' name='userAddress'>
+						</div>
+					</div>
+					<br><br>
+					<div class='col-xs-1' align='right' >
+						<button type='button' class='btn btn-primary' name='confirmBtn'>Confirm</button>
+					</div>
+				</form>
 			</div>
-			<br>
-			<div class="form-row row">
-				<div class="col">
-					<input type="email" class="form-control" name="userEmail" placeholder="Email">
-				</div>
-			</div>
-			<br>
-			<div class="form-row row">
-				<div class="col">
-					<input type="password" class="form-control" name="userPassword" placeholder="Password">
-				</div>
-			</div>
-			<br>
-			<div class="form-row">
-				<div class="col-6">
-					<select class="form-control placeholder">
-					   <option value="">Select Card Type</option>
-					   <option value="1">American Express</option>
-					   <option value="2">MasterCard</option>
-					   <option value="3">Discover</option>
-					   <option value="4">Visa</option>
-					   <option value="5">PayPal</option>
-					</select>
-				</div>
-				<div class="col-6">
-				  <input type="text" class="form-control" placeholder="Credit Card Number" name="userCCNum">
-				</div>
-			</div>
-			<br>
-			<div class="form-row">
-				<div class="col">
-				  <input type="text" class="form-control" placeholder="Address" name="userAddress">
-				</div>
-			</div>
-			<br><br>
-			<div class="col-xs-1" align="right" >
-				<button type="button" class="btn btn-primary" name="confirmBtn">Confirm</button>
-			</div>
-		</form>
-	</div>
-	<br><br><br>
-	
+			<br><br><br>
+			";
+		} //end if
+	?>
 	
 	<!---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------> 
 	<!--Scripts for form validation-->
