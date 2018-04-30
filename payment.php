@@ -4,28 +4,45 @@
 
 <?php
 	//set local variables empty 
-	$email = $pswd  = $payment = $discount = "";
+	$email = $pswd = $status = "";
+	$payment = $discount = $no_Of_Person = $ticket_Cost = "";
+	
+	//Calculate ticket cost
+	function flightCost($no_Of_Person, $ticket_Cost)
+	{
+		$total = "";
+		
+		$no_Of_Person * $ticket_Cost;
+		return $total;
+	}
 	
 	//calculate discount if user exist
 	function processDiscount($payment)
 	{
+		$dis = "";
+		
 		$dis = $payment * 0.2;
 		return $dis;
 	} //end processDiscount
 	
 	$email = $_SESSION['user_info']['userEmail']; 
 	$pswd = $_SESSION['user_info']['userPassword']; 
-	$payment = $_SESSION['flight_cost']['flight_charge']; 
+	$ticket_Cost = $_SESSION['flight_cost']['flight_charge']; 
+	$no_Of_Person = $_SESSION['book_info']['passenger'];
 	
+	//check if customer exist 
 	if ($email != "" && $pswd != "")
 	{
-		//exist customer discount calculation
+		$status = 1;
+		//registered customer discount calculation
 		$discount = processDiscount($payment);
-		$payment = $payment + $discount;
+		$payment = flightCost($no_Of_Person, $ticket_Cost) + $discount;
 	} //end if
 	else
 	{
-		
+		$status = 0;
+		//no discount for non-registered customer
+		$payment = flightCost($no_Of_Person, $ticket_Cost);
 	} //end else
 	
 ?>
@@ -40,11 +57,42 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
 	
+	<meta charset="utf-8">
+
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
-	<!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://cdn.rawgit.com/twbs/bootstrap/v4-dev/dist/css/bootstrap.css">
+	<link rel="stylesheet" type="text/css" href="assets/style.css">
+
+	<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 	<style>
+		/* Gradient transparent - color - transparent */
+		hr {
+			border: 0;
+			height: 3px;
+			background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));
+		}
+		
+		.modal-body {
+			margin: auto;
+			padding: 20px;
+			width: 450px;
+			position: relative;
+			border-radius: 7px;
+			background: rgba(255, 255, 255, 0.75);
+		}
+		
+		h5 {
+			color: blue;
+			text-align: center;
+		}
+		
+		h3 {
+			color: white;
+			font-size: 25px;
+		}
+		
 		/* Gradient transparent - color - transparent */
 		hr {
 			border: 0;
@@ -55,32 +103,93 @@
 </head>
 <body background="assets/images/home.jpg" >
 	
-	<div class="container-fluid">
-		<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top" role="navigation">
-			<div class="container">
-				<h6 style="color: white; font-size: 30px;">PAYMENT INFORMATION</h6>
-				<button class="navbar-toggler border-0" type="button" data-toggle="collapse" data-target="#exCollapsingNavbar">
-					&#9776;
-				</button>
-				<div class="collapse navbar-collapse" id="exCollapsingNavbar">
-					<ul class="nav navbar-nav flex-row justify-content-between ml-auto">
-						<li class="nav-item"><a href="index.php" class="nav-link">LogOut</a></li>
-					</ul>
+	<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top" role="navigation">
+	    <div class="container">
+	        <h3>FLIGHT OPTION</h3>
+	        <button class="navbar-toggler border-0" type="button" data-toggle="collapse" data-target="#exCollapsingNavbar">
+	            &#9776;
+	        </button>
+	        <div class="collapse navbar-collapse" id="exCollapsingNavbar">
+	            <ul class="nav navbar-nav flex-row justify-content-between ml-auto">
+	                <li class="nav-item">
+	                    <button type="button" class="btn btn-outline-primary">
+							<a href="index.php" class="nav-link">Log Out</a>
+						</button>
+	                </li>
+	            </ul>
+	        </div>
+	    </div>
+	</nav>
+	<br><br>
+	
+	<div class="modal-body">
+		<h5>PAYMENT INFRORMATION</h5>
+		<hr/>
+		<!-- form starts here -->
+		<form action="" method="POST">
+			<div class="form-row">
+				<div class="col-6">
+					<input type="text" class="form-control" placeholder="First Name" name="userFirstName">
+				</div>
+				<div class="col-6">
+					<input type="text" class="form-control" placeholder="Last Name" name="userLastName">
 				</div>
 			</div>
-		</nav>
+			<br>
+			<div class="form-row row">
+				<div class="col">
+					<input type="email" class="form-control" name="userEmail" placeholder="Email">
+				</div>
+			</div>
+			<br>
+			<div class="form-row row">
+				<div class="col">
+					<input type="password" class="form-control" name="userPassword" placeholder="Password">
+				</div>
+			</div>
+			<br>
+			<div class="form-row">
+				<div class="col-6">
+					<select class="form-control placeholder">
+					   <option value="">Select Card Type</option>
+					   <option value="1">American Express</option>
+					   <option value="2">MasterCard</option>
+					   <option value="3">Discover</option>
+					   <option value="4">Visa</option>
+					   <option value="5">PayPal</option>
+					</select>
+				</div>
+				<div class="col-6">
+				  <input type="text" class="form-control" placeholder="Credit Card Number" name="userCCNum">
+				</div>
+			</div>
+			<br>
+			<div class="form-row">
+				<div class="col">
+				  <input type="text" class="form-control" placeholder="Address" name="userAddress">
+				</div>
+			</div>
+			<br><br>
+			<div class="col-xs-1" align="right" >
+				<button type="button" class="btn btn-primary" name="confirmBtn">Confirm</button>
+			</div>
+		</form>
 	</div>
 	<br><br><br>
-	<!-- form starts here -->
-	<form action="flight.php" method="POST">
-		<hr/>
-	</form>
 	
 	
 	<!---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------> 
-	<!-- jQuery first, then Bootstrap JS. -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
-    <script src="https://cdn.rawgit.com/twbs/bootstrap/v4-dev/dist/js/bootstrap.js"></script>
+	<!--Scripts for form validation-->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+	<script src="https://cdn.jsdelivr.net/jquery.validation/1.15.1/jquery.validate.min.js"></script>
+
+	<script src="assets/js/formValidation.js"></script>
+
+
+	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 	<!---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------> 
 	
 </body>

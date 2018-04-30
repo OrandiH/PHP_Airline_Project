@@ -217,10 +217,10 @@
 				
 				//error not outputing trip type
 				$m = $_SESSION['book_info']['tripType'];
-				/*
+				
 				echo "<br><br><br><br>";
 				echo  $m; 
-				*/
+				
 				//direct user to flight page
 				header("location:flight.php");
 				
@@ -247,117 +247,124 @@
 </head>
 <body background="assets/images/home.jpg">
 	<div class="container-fluid">
-	<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top" role="navigation">
-	    <div class="container">
-	        <a class="navbar-brand" href="#">Booking</a>
-	        <button class="navbar-toggler border-0" type="button" data-toggle="collapse" data-target="#exCollapsingNavbar">
-	            &#9776;
-	        </button>
-	        <div class="collapse navbar-collapse" id="exCollapsingNavbar">
-	            <ul class="nav navbar-nav flex-row justify-content-between ml-auto">
-	                <li class="nav-item"><a href="#" class="nav-link">Already a member?</a></li>
-	                <li class="dropdown order-1">
-	                    <button type="button" id="dropdownMenu1" data-toggle="dropdown" class="btn btn-outline-primary dropdown-toggle ">Login/Register <span class="caret"></span></button>
-	                    <ul class="dropdown-menu dropdown-menu-right mt-1 transparent">
-	                      <li class="p-3">
-	                            <form class="form" role="form" action="" method="POST">
-	                                <div class="form-group">
-	                                    <input id="emailInput" placeholder="Email" class="form-control form-control-sm" type="text" required="">
-	                                </div>
-	                                <div class="form-group">
-	                                    <input id="passwordInput" placeholder="Password" class="form-control form-control-sm" type="text" required="">
-	                                </div>
-	                                <div class="form-check">
-								    <input type="checkbox" class="form-check-input" id="exampleCheck1">
-								    <label class="form-check-label" for="exampleCheck1">Remember Me</label>
-								  </div>
-								  <br>
-	                                <div class="form-group">
-	                                    <button type="submit" class="btn btn-primary btn-block">Login</button>
-	                                </div>
-	                                <center>
-	                                <div class="form-group text-xs-center">
-	                                    <small>New Here? <a href="#" data-toggle="modal" data-target="#registerModal">Register</a></small>
-	                                </div>
-	                                </center>
-	                            </form>
-	                        </li>
-	                    </ul>
-	                </li>
-	            </ul>
-	        </div>
-	    </div>
-	</nav>
-	
-<!-- Modal -->
-<div class="modal" id="registerModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header ">
-        <h4 class="modal-title" id="exampleModalLabel">Sign Up</h4>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-		
-		<!-- form starts here -->
-      	<form action="<?php echo htmlentities($_SERVER['PHP_SELF']); ?>" method="POST">
-		  <div class="form-row">
-		    <div class="col-6">
-		    <input type="text" class="form-control" placeholder="First Name" name="userFirstName">
-		  </div>
-		    <div class="col-6">
-		      <input type="text" class="form-control" placeholder="Last Name" name="userLastName">
-		    </div>
-		  </div>
-		  <br>
-		  <div class="form-row row">
-		    <div class="col">
-		    	<input type="email" class="form-control" name="userEmail" placeholder="Email">
-		    </div>
-		  </div>
-		  <br>
-		  <div class="form-row row">
-		    <div class="col">
-		    	<input type="password" class="form-control" name="userPassword" placeholder="Password">
-		    </div>
-		  </div>
-		  <br>
-		  <div class="form-row">
-		    <div class="col-6">
-		      <input type="number" class="form-control" placeholder="Age" name="userAge" min="1">
-		    </div>
-		    <div class="col-6">
-		      <input type="text" class="form-control" placeholder="Credit Card Number" name="userCCNum">
-		    </div>
-		  </div>
-		  <br>
-		   <div class="form-row">
-		    <div class="col">
-		      <input type="text" class="form-control" placeholder="Address" name="userAddress">
-		    </div>
-		  </div>
-		  <br>
-		  <div class="form-row">
-		    <div class="col">
-				<img id="blah" src="http://placehold.it/180" alt="your image" />
-				<input type='file' onchange="readURL(this);" name="profilePic">
-		    </div>
-		  </div>
-		  <br>
-		 <div class="d-flex justify-content-between">
-		 <button type="button float-right" class="btn btn-primary" href="#" id="registerBtn">Register</button>
-		  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-		</div>
-		</form>
-      </div>
-      <div class="modal-footer">
-			
+		<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top" role="navigation">
+			<div class="container">
+				<a class="navbar-brand" href="#">Booking</a>
+				<button class="navbar-toggler border-0" type="button" data-toggle="collapse" data-target="#exCollapsingNavbar">
+					&#9776;
+				</button>
+				<div class="collapse navbar-collapse" id="exCollapsingNavbar">
+					<ul class="nav navbar-nav flex-row justify-content-between ml-auto">
+						<li class="nav-item"><a href="#" class="nav-link">Already a member?</a></li>
+						<li class="dropdown order-1">
+							<button type="button" id="dropdownMenu1" data-toggle="dropdown" class="btn btn-outline-primary dropdown-toggle ">Login/Register <span class="caret"></span></button>
+							<ul class="dropdown-menu dropdown-menu-right mt-1 transparent">
+							  <li class="p-3">
+									<form class="form" role="form" action="" method="POST">
+										<div class="form-group">
+											<input id="emailInput" placeholder="Email" class="form-control form-control-sm" type="text" required="">
+										</div>
+										<div class="form-group">
+											<input id="passwordInput" placeholder="Password" class="form-control form-control-sm" type="text" required="">
+										</div>
+										<div class="form-check">
+										<input type="checkbox" class="form-check-input" id="exampleCheck1">
+										<label class="form-check-label" for="exampleCheck1">Remember Me</label>
+									  </div>
+									  <br>
+										<div class="form-group">
+											<button type="submit" class="btn btn-primary btn-block">Login</button>
+										</div>
+										<center>
+										<div class="form-group text-xs-center">
+											<small>New Here? <a href="#" data-toggle="modal" data-target="#registerModal">Register</a></small>
+										</div>
+										</center>
+									</form>
+								</li>
+							</ul>
+						</li>
+					</ul>
+				</div>
 			</div>
-    </div>
-  </div>
-</div>
+		</nav>
+	
+	<!-- Modal -->
+	<div class="modal" id="registerModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+	  <div class="modal-dialog" role="document">
+		<div class="modal-content">
+		  <div class="modal-header ">
+			<h4 class="modal-title" id="exampleModalLabel">Sign Up</h4>
+			<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+			  <span aria-hidden="true">&times;</span>
+			</button>
+		  </div>
+		  <div class="modal-body">
+			
+			<!-- form starts here -->
+			<form action="<?php echo htmlentities($_SERVER['PHP_SELF']); ?>" method="POST">
+			  <div class="form-row">
+				<div class="col-6">
+				<input type="text" class="form-control" placeholder="First Name" name="userFirstName">
+			  </div>
+				<div class="col-6">
+				  <input type="text" class="form-control" placeholder="Last Name" name="userLastName">
+				</div>
+			  </div>
+			  <br>
+			  <div class="form-row row">
+				<div class="col">
+					<input type="email" class="form-control" name="userEmail" placeholder="Email">
+				</div>
+			  </div>
+			  <br>
+			  <div class="form-row row">
+				<div class="col">
+					<input type="password" class="form-control" name="userPassword" placeholder="Password">
+				</div>
+			  </div>
+			  <br>
+			  <div class="form-row">
+				<div class="col-6">
+					<select class="form-control placeholder">
+					   <option value="">Select Card Type</option>
+					   <option value="1">American Express</option>
+					   <option value="2">MasterCard</option>
+					   <option value="3">Discover</option>
+					   <option value="4">Visa</option>
+					   <option value="5">PayPal</option>
+					</select>
+				</div>
+				<div class="col-6">
+				  <input type="text" class="form-control" placeholder="Credit Card Number" name="userCCNum">
+				</div>
+			  </div>
+			  <br>
+			   <div class="form-row">
+				<div class="col">
+				  <input type="text" class="form-control" placeholder="Address" name="userAddress">
+				</div>
+			  </div>
+			  <br>
+			  <div class="form-row">
+				<div class="col">
+					<img id="blah" src="http://placehold.it/180" alt="your image" />
+					<input type='file' onchange="readURL(this);" name="profilePic">
+				</div>
+			  </div>
+			  <br>
+			 <div class="d-flex justify-content-between">
+			 <button type="button float-right" class="btn btn-primary" href="#" id="registerBtn">Register</button>
+			  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+			</div>
+			</form>
+			</div>
+		<div class="modal-footer">
+				
+				</div>
+		</div>
+	  </div>
+	</div>
 
 
 	<div class="container container-body">

@@ -6,11 +6,9 @@
         //unset($AdminName);
         header("location:index.php");
     }
-
     $dsn = 'mysql:host=localhost;dbname=airlines_db';
     $username = 'root';
     $password = '';
-
     try{
         // Connect To MySQL Database
         $con = new PDO($dsn,$username,$password);
@@ -27,30 +25,25 @@
     $address = "";
     $creditCardNumber = "";
     $password = "";
-
     $emailErr = "";
     $fnameErr = $lnameErr = $passwdErr = "";
     $ageErr = $addressErr = $ccNumErr = "";
-
-
     $flightid = "";
     $flightName = "";
     $depatureCity = "";
     $destinationCity = "";
-
+    $flightCost = "";
     $flightidErr = $flightNameErr = $depatureCityErr = "";
     $destinationCityErr = $depatureDateErr = $returnDateErr = "";
-    $AmountOfSeatsErr = "";
-
-
+    $AmountOfSeatsErr = $flightCostErr = "";
     function sanitize_data($data) {
         $data = trim($data);
         $data = stripslashes($data);
         $data = htmlspecialchars($data);
         return $data;
     }
-
     if($_SERVER["REQUEST_METHOD"] == "POST"){
+        //Variables For Customer Table
         $cus_email = $_POST['email'];
         $firstname = $_POST['firstname'];
         $lastname = $_POST['lastname'];
@@ -96,7 +89,7 @@
           </div>'; 
         }
         
-        //lastname
+        //lastname validation
         if(empty($lastname)){
             $lnameErr = '<div class="alert alert-danger small" role="alert">
             Please Enter Last Name
@@ -109,7 +102,6 @@
           </div>';  
         }   
     }
-
     //Search And Display Data 
     if(isset($_POST['search'])){
         if(empty($cus_email))
@@ -140,9 +132,7 @@
             }
         }
     }
-
     //START FROM HERE
-
     // Insert Data Into Customer Table
     if(isset($_POST['insert'])){
         if(empty($cus_email) || empty($firstname) || empty($lastname) || empty($cus_age) || empty($cus_address) || empty($cus_password) || empty($cus_creditCardNum)){
@@ -167,11 +157,46 @@
                 echo 'Data Inserted';
             }
             if($insertStmt2){
-
             }
         }
-    } 
-
+    }
+    
+    if(isset($_GET['insertFlight'])){
+        //Variables For Flight Table
+        $flight_ID = $_GET['flightID'];
+        $flight_Name = $_GET['flightName'];
+        $depart_City = $_GET['depatureCity'];
+        $destination_City = $_GET['destinationCity'];
+        $departure_Date = $_GET['depatureDate'];
+        $return_Date = $_GET['returnDate'];
+        $numberOfSeats = $_GET['AmountOfSeats'];
+        $flight_Cost = $_GET['flightCost'];
+        if(empty($flight_ID) || empty($flight_Name) || empty($depart_City) || empty($destination_City) || empty($departure_Date) || empty($return_Date) || empty($numberOfSeats || empty($flight_Cost))){
+            echo 'Enter The User Data To Insert';
+        }else{
+            $insertStmt = $con->prepare('INSERT INTO flight(flightID, flightName, depatureCity, destinationCity, depatureDate, returnDate, AmountOfSeats) VALUES (:flightID, :flightName, :departCity, :destinationCity, :departDate, :returnDate, :numberSeats)');
+            $insertStmt2 = $con2->prepare('INSERT INTO flight_cost(flightID, cost) VALUES (:flightID, :flightCost)');
+            $insertStmt->execute(array(
+                ':flightID'=> $flight_ID,
+                ':flightName'=> $flight_Name,
+                ':departCity'=> $depart_City,
+                ':destinationCity'=> $destination_City,
+                ':departDate'=> $departure_Date,
+                ':returnDate'=> $return_Date,
+                ':numberSeats'=> $numberOfSeats
+            )) ;
+            $insertStmt2->execute(array(
+                ':flightID'=> $flight_ID,
+                ':flightCost'=> $flight_Cost
+            )) ;
+            if($insertStmt )
+            {
+                echo 'Data Inserted';
+            }
+            if($insertStmt2){
+            }
+        }
+    }
     //Update Data From Customer Table
     if(isset($_POST['update'])){
         $updateStmt = $con->prepare('UPDATE customer SET username = :email, firstName = :fname, lastName = :lname ,age = :age, mailAddress = :mailaddress, credit_card_Num = :creditCardNum WHERE username = :email');
@@ -196,7 +221,39 @@
         {
         }
     }
-
+    if(isset($_GET['updateFlight'])){
+        //Variables For Flight Table
+        $flight_ID = $_GET['flightID'];
+        $flight_Name = $_GET['flightName'];
+        $depart_City = $_GET['depatureCity'];
+        $destination_City = $_GET['destinationCity'];
+        $departure_Date = $_GET['depatureDate'];
+        $return_Date = $_GET['returnDate'];
+        $numberOfSeats = $_GET['AmountOfSeats'];
+        $flight_Cost = $_GET['flightCost'];
+        $updateStmt = $con->prepare('UPDATE `flight` SET flightID = :flightID, flightName = :flightName, depatureCity = :departCity, destinationCity = :destinationCity, depatureDate = :departDate, returnDate = :returnDate, AmountOfSeats = :numberSeats WHERE flightID = :flightID');
+        $updateStmt2 = $con2->prepare('UPDATE `flight_cost` SET flightID = :flightID, cost = :flightCost WHERE flightID = :flightID');
+        $updateStmt->execute(array(
+            ':flightID'=> $flight_ID,
+            ':flightName'=> $flight_Name,
+            ':departCity'=> $depart_City,
+            ':destinationCity'=> $destination_City,
+            ':departDate'=> $departure_Date,
+            ':returnDate'=> $return_Date,
+            ':numberSeats'=> $numberOfSeats
+        ));
+        $updateStmt2->execute(array(
+            ':flightID'=> $flight_ID,
+            ':flightCost'=> $flight_Cost
+        )) ;
+        if($updateStmt)
+        {
+            echo 'Data Updated';
+        }
+        if($updateStmt2)
+        {
+        }
+    }
     // Delete Data From Customer Table
     if(isset($_POST['delete']))
     {
@@ -210,7 +267,6 @@
             $stmt->execute(array(
                 ':email'=> $cus_email
             ));
-
             
             $deleteStmt = $con->prepare('DELETE FROM customer WHERE username = :email');
             $deleteStmt2 = $con->prepare('DELETE FROM customer_login WHERE username = :email');
@@ -226,7 +282,49 @@
                     echo 'User Deleted';
                     $fnameErr = $lnameErr = "";
                     $ageErr = $addressErr = "";
-
+            }
+            if($deleteStmt2 and $stmt)
+            {
+            }
+            
+        }
+    }
+    if(isset($_GET['deleteFlight']))
+    {
+        //Variables For Flight Table
+        $flight_ID = $_GET['flightID'];
+        $flight_Name = $_GET['flightName'];
+        $depart_City = $_GET['depatureCity'];
+        $destination_City = $_GET['destinationCity'];
+        $departure_Date = $_GET['depatureDate'];
+        $return_Date = $_GET['returnDate'];
+        $numberOfSeats = $_GET['AmountOfSeats'];
+        $flight_Cost = $_GET['flightCost'];
+        if(empty($flight_ID))
+        {
+            echo 'Enter The Flight ID To Delete';
+            $fnameErr = $lnameErr = "";
+            $ageErr = $addressErr = "";
+        }  else {
+            $stmt = $con->prepare('DELETE FROM flight_cost WHERE flightID = :flightID');
+            $stmt->execute(array(
+                ':flightID'=> $flight_ID
+            ));
+            
+            $deleteStmt = $con->prepare('DELETE FROM flight WHERE flightID = :flightID');
+            $deleteStmt2 = $con->prepare('DELETE FROM flight_cost WHERE flightID = :flightID');
+            $deleteStmt->execute(array(
+                ':flightID'=> $flight_ID
+            ));
+            $deleteStmt2->execute(array(
+                ':flightID'=> $flight_ID
+            ));
+            
+            if($deleteStmt and $stmt)
+            {
+                    echo 'User Deleted';
+                    $fnameErr = $lnameErr = "";
+                    $ageErr = $addressErr = "";
             }
             if($deleteStmt2 and $stmt)
             {
@@ -268,25 +366,20 @@
     <div class="main-container" style="padding-top: 8%">
 
 <?php
-
 echo "<div class='container border col-6'>";
 echo "<table class='table-sm table-bordered table-striped'>";
 echo "<caption>List Of Current Customers</caption>";
 echo "<tr><th>Email</th><th>First Name</th><th>Last Name</th><th>Age</th><th>Address</th><th>CreditCard Number</th></tr>";
-
 class TableRows extends RecursiveIteratorIterator { 
     function __construct($it) { 
         parent::__construct($it, self::LEAVES_ONLY); 
     }
-
     function current() {
         return "<td>" . parent::current(). "</td>";
     }
-
     function beginChildren() { 
         echo "<tr>"; 
     } 
-
     function endChildren() { 
         echo "</tr>" . "\n";
     } 
@@ -295,14 +388,11 @@ class TableRows extends RecursiveIteratorIterator {
     $dbUsername = "root";
     $dbPassword = "";
 	$dbName = "airlines_db"; 
-
 try {
 	$conn = new PDO("mysql:host=$servername;dbname=$dbName",$dbUsername,$dbPassword);
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     $stmt = $conn->prepare("SELECT username,firstName,lastName,age,mailAddress, credit_card_Num FROM customer "); 
     $stmt->execute();
-
-
     // set the resulting array to associative
     $result = $stmt->setFetchMode(PDO::FETCH_ASSOC); 
     foreach(new TableRows(new RecursiveArrayIterator($stmt->fetchAll())) as $k=>$v) { 
@@ -371,24 +461,20 @@ echo "<br>";
 
 
 <?php
-
 echo "<div class='container border col-8' style='margin-left: 22%;'>";
 echo "<table class='table-sm table-bordered table-striped'>";
-echo "<caption>List Of Flighs</caption>";
-echo "<tr><th>Flight ID</th><th>Flight Name</th><th>Depart From</th><th>Arrive At</th><th>Depart Date</th><th>Return Date</th><th>Number Of Seats</th></tr>";
+echo "<caption>List Of Flights</caption>";
+echo "<tr><th>Flight ID</th><th>Flight Name</th><th>Depart From</th><th>Arrive At</th><th>Depart Date</th><th>Return Date</th><th>Number Of Seats</th><th>Cost</th></tr>";
     class TableRows2 extends RecursiveIteratorIterator { 
     function __construct($it) { 
         parent::__construct($it, self::LEAVES_ONLY); 
     }
-
     function current() {
         return "<td>" . parent::current(). "</td>";
     }
-
     function beginChildren() { 
         echo "<tr>"; 
     } 
-
     function endChildren() { 
         echo "</tr>" . "\n";
     } 
@@ -397,14 +483,12 @@ echo "<tr><th>Flight ID</th><th>Flight Name</th><th>Depart From</th><th>Arrive A
     $dbUsername = "root";
     $dbPassword = "";
 	$dbName = "airlines_db"; 
-
 try {
 	$conn = new PDO("mysql:host=$servername;dbname=$dbName",$dbUsername,$dbPassword);
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    $stmt = $conn->prepare("SELECT flightID, flightName, depatureCity, destinationCity, depatureDate, returnDate, AmountOfSeats FROM flight"); 
+    //$stmt = $conn->prepare("SELECT flightID, flightName, depatureCity, destinationCity, depatureDate, returnDate, AmountOfSeats FROM flight"); 
+    $stmt = $conn->prepare("SELECT flight.flightID, flight.flightName, flight.depatureCity, flight.destinationCity, flight.depatureDate, flight.returnDate, flight.AmountOfSeats, flight_cost.cost FROM flight INNER JOIN flight_cost ON flight.flightID = flight_cost.flightID");
     $stmt->execute();
-
-
     // set the resulting array to associative
     $result = $stmt->setFetchMode(PDO::FETCH_ASSOC); 
     foreach(new TableRows(new RecursiveArrayIterator($stmt->fetchAll())) as $k=>$v) { 
@@ -422,7 +506,7 @@ echo "<br>";
 ?>
 
             <div class="container" style="margin-left:22%;"> 
-            <form class="col-8 border form-control-small" action="adminDashboard.php" method="POST">
+            <form class="col-8 border form-control-small" action="adminDashboard.php" method="GET">
                 <legend>Flight Data</legend>
             <div class="form-row">
                 <div class="col-4">
@@ -455,9 +539,13 @@ echo "<br>";
 		    </div>
             <br>
 		    <div class="form-row">
-                <div class="col">
+                <div class="col-6">
                     <input type="number" class="form-control" placeholder="Amount Of Seats" name="AmountOfSeats" value="<?php echo $AmountOfSeats;?>">
                     <?php echo $AmountOfSeatsErr; ?>
+                </div>
+                <div class="col-6">
+                    <input type="number" class="form-control" placeholder="Cost" name="flightCost" value="<?php echo $flightCost;?>">
+                    <?php echo $flightCostErr; ?>
                 </div>
 		    </div>
             <br>
@@ -470,7 +558,6 @@ echo "<br>";
             </form>
         </div>
         <div>
-
         <br><br>
     </div>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
