@@ -197,7 +197,7 @@
             }
         }
     }
-    //Update Data From Customer Table
+    /*//Update Data From Customer Table
     if(isset($_POST['update'])){
         $updateStmt = $con->prepare('UPDATE customer SET username = :email, firstName = :fname, lastName = :lname ,age = :age, mailAddress = :mailaddress, credit_card_Num = :creditCardNum WHERE username = :email');
         $updateStmt2 = $con2->prepare('UPDATE customer_login SET username = :email, password = :cus_pass WHERE username = :email');
@@ -220,7 +220,7 @@
         if($updateStmt2)
         {
         }
-    }
+    }*/
     if(isset($_GET['updateFlight'])){
         //Variables For Flight Table
         $flight_ID = $_GET['flightID'];
@@ -254,6 +254,7 @@
         {
         }
     }
+/*
     // Delete Data From Customer Table
     if(isset($_POST['delete']))
     {
@@ -289,6 +290,7 @@
             
         }
     }
+*/
     if(isset($_GET['deleteFlight']))
     {
         //Variables For Flight Table
@@ -366,7 +368,43 @@
     <div class="main-container" style="padding-top: 8%">
 
 <?php
-echo "<div class='container border col-6'>";
+echo "<div class='container border col-4'>";
+echo "<form method = 'POST' action = 'adminDashboard.php'>";
+echo "<table class='table-sm table-bordered table-striped' table align = 'center'>";
+echo "<caption>List Of Current Customers</caption>";
+echo "<tr><th>EMAIL</th><th>ACTION</th></tr>";
+ $servername = "localhost";
+ $username = "root";
+ $password = "";
+ $dbname = "airlines_db";
+ 
+ // Create connection
+ $conn = new mysqli($servername, $username, $password, $dbname);
+ // Check connection
+ if ($conn->connect_error) {
+     die("Connection failed: " . $conn->connect_error);
+ } 
+ 
+ $sql = "SELECT username,firstName,lastName,age,mailAddress FROM customer ";
+ $result = $conn->query($sql);
+ 
+ if ($result->num_rows > 0) {
+    // output data of each row
+     while($row = $result->fetch_assoc()) {
+         echo '<tr>
+         <td>'.$row["username"].'</td>
+         <td><a href = "update.php?user='.$row["username"].'">Update </a><a href = "delete.php?deluser='.$row["username"].'">Delete </a></td>
+         </tr>';
+     }
+    
+ }
+ $conn->close();
+ 
+ echo "</form></table>";
+echo "<br>";
+echo "</div>";
+echo "<br>";
+/*echo "<div class='container border col-6'>";
 echo "<table class='table-sm table-bordered table-striped'>";
 echo "<caption>List Of Current Customers</caption>";
 echo "<tr><th>Email</th><th>First Name</th><th>Last Name</th><th>Age</th><th>Address</th><th>CreditCard Number</th></tr>";
@@ -406,7 +444,7 @@ $conn = null;
 echo "</table>";
 echo "<br>";
 echo "</div>";
-echo "<br>";
+echo "<br>";*/
 ?>
         <div class="container" style="margin-left:22%;"> 
             <form class="col-8 border form-control-small" action="adminDashboard.php" method="POST">
@@ -450,8 +488,6 @@ echo "<br>";
             <br>
             <div class="d-flex justify-content-between">
             <button type="submit" class="btn btn-primary" name="insert">Create</button>
-            <button type="submit" class="btn btn-success" name="update">Update</button>
-            <button type="submit" class="btn btn-danger" name="delete">Delete</button>
             <button type="submit" class="btn btn-secondary" name="Search">Search</button>
 		    </div>
             </form>
@@ -465,7 +501,7 @@ echo "<div class='container border col-8' style='margin-left: 22%;'>";
 echo "<table class='table-sm table-bordered table-striped'>";
 echo "<caption>List Of Flights</caption>";
 echo "<tr><th>Flight ID</th><th>Flight Name</th><th>Depart From</th><th>Arrive At</th><th>Depart Date</th><th>Return Date</th><th>Number Of Seats</th><th>Cost</th></tr>";
-    class TableRows2 extends RecursiveIteratorIterator { 
+   class TableRows2 extends RecursiveIteratorIterator { 
     function __construct($it) { 
         parent::__construct($it, self::LEAVES_ONLY); 
     }
@@ -491,7 +527,7 @@ try {
     $stmt->execute();
     // set the resulting array to associative
     $result = $stmt->setFetchMode(PDO::FETCH_ASSOC); 
-    foreach(new TableRows(new RecursiveArrayIterator($stmt->fetchAll())) as $k=>$v) { 
+    foreach(new TableRows2(new RecursiveArrayIterator($stmt->fetchAll())) as $k=>$v) { 
         echo $v;
     }
 }
@@ -562,4 +598,4 @@ echo "<br>";
     </div>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 </body>
-</html>
+</html
