@@ -207,7 +207,7 @@
 				$rDay = cleanInputs($_POST['returnDate']);
 				$noOfpassenger = cleanInputs($_POST['passenger']);
 				
-				//session variable to store flight details
+				//session variable to store book details
 				$_SESSION['book_info'] = array(
 					'tripType' => $tripType, 
 					'departure' => $deptCity,

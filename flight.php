@@ -2,21 +2,30 @@
 	session_start();
 ?>
 
-<?php
-			
+<?php		
 	//local variables
-	$depCit = $desCity = $dDate = $msg = $trip = $var = "";
+	$msg = $fl_msg = "";
+	$trip = $depCity = $arrCity = $dDate = $rDate = $flightId = $flightName = $flightCost = "";
 		
 	//set flight search values  
 	$trip = $_SESSION['book_info']['tripType'];
-	$depCit = $_SESSION['book_info']['departure'];
-	$desCity = $_SESSION['book_info']['arrival'];
+	$depCity = $_SESSION['book_info']['departure'];
+	$arrCity = $_SESSION['book_info']['arrival'];
 	$dDate =  $_SESSION['book_info']['departDate'];
 	$rDate =  $_SESSION['book_info']['returnDate'];
+	$noOfpassenger = $_SESSION['book_info']['passenger'];
 	
 	//set session values for payment
 	$_SESSION['flight_info']['tripType'] = $trip;
 	
+	//Function to clean inputs received from form
+	function cleanInputs($value){
+
+		$value = trim($value);
+		$value = stripcslashes($value);
+		$value = htmlspecialchars($value);
+		return $value;
+	}	
 ?>				
 
 <!DOCTYPE html>
@@ -30,22 +39,8 @@
 	
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 	
-	<!-- Bootstrap CSS -->
+	<!-- bootstrap css -->
     <link rel="stylesheet" href="https://cdn.rawgit.com/twbs/bootstrap/v4-dev/dist/css/bootstrap.css">
-	
-	<script language="javascript" type="text/javascript">
-		function showRow(row)
-		{
-		var x=row.cells;
-		document.getElementById("fID").value = x[0].innerHTML;
-		document.getElementById("fName").value = x[1].innerHTML;
-		document.getElementById("depature").value = x[2].innerHTML;
-		document.getElementById("destination").value = x[3].innerHTML;
-		document.getElementById("dDate").value = x[4].innerHTML;
-		document.getElementById("AmountOfSeats").value = x[5].innerHTML;
-		document.getElementById("AmountOfSeats").value = x[6].innerHTML;
-		}
-	</script>
 	
 	<style>
 		table { 
@@ -127,12 +122,19 @@
 		h3 {
 			color: white;
 			font-size: 25px;
-		}
+		}	
 		
+		body { 
+			  background: url(assets/images/home.jpg) no-repeat center center fixed; 
+			  -webkit-background-size: cover;
+			  -moz-background-size: cover;
+			  -o-background-size: cover;
+			  background-size: cover;
+		}
 	</style>
 </head>
-<body background="assets/images/home.jpg" >
-	
+
+<body>
 	<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top" role="navigation">
 	    <div class="container">
 	        <h3>FLIGHT OPTION</h3>
@@ -152,8 +154,7 @@
 	</nav>
 	<br><br> <br><br><br>
 	
-	<!-- form starts here -->
-	<form action="" method="POST">
+	<!-- carouse starts here -->
 		<div class="inner-container">
 			<br>
 			<h2 style="text-align: center; color: blue;">SCROLL TO VIEW CITIES<h2>
@@ -226,15 +227,15 @@
         </div>
 		<br><br>
       </div>
-	</form>
 	<br><br>
 	
 	<div style="margin: 0px;">
 		<?php
 			//validates oneway trip flight search
 			if($trip != "" && $trip = "oneway"){
-				if($depCit != "" && $desCity != "" && $dDate!= "") 
+				if($depCity != "" && $arrCity != "" && $dDate!= "") 
 				{
+					//varibles for payment session
 					try {
 						//database connection
 						include("connection.php");
@@ -244,13 +245,13 @@
 						//join parameters
 						$string2 = "join flight_cost on flight.flightID = flight_cost.flightID";
 						//where parameters
-						$string3 = "depatureCity='$depCit' and destinationCity='$desCity' and depatureDate='$dDate'";
+						$string3 = "depatureCity='$depCity' and destinationCity='$arrCity' and depatureDate='$dDate'";
 								
 						//search database for matchig flights
 						$query = "$string1 from flight $string2 where $string3";					
 						$stmt = $conn->prepare($query);
-						$stmt->bindParam('depatureCity', $depCit, PDO::PARAM_STR);
-						$stmt->bindValue('destination', $desCity, PDO::PARAM_STR);
+						$stmt->bindParam('depatureCity', $depCity, PDO::PARAM_STR);
+						$stmt->bindValue('destination', $arrCity, PDO::PARAM_STR);
 						$stmt->bindValue('depatureDate', $dDate, PDO::PARAM_STR);
 						$stmt->execute();
 						$count = $stmt->rowCount();
@@ -260,7 +261,7 @@
 						if($count > 0 && !empty($row)) 
 						{
 							/******************** Display available flights***********************/
-							$fl_msg = "<h6> CHOOSE YOUR FLIGHT OPTION...!</h6>";
+							$fl_msg = "<h6> CHOOSE YOUR FLIGHT PLAN...!</h6>";
 							echo "<br>";
 							echo "<hr>";
 							echo $fl_msg;
@@ -276,13 +277,14 @@
 									echo "<th>DEPATUREDATE</th>";
 									echo "<th>AMOUNTOFSEATS</th>";
 									echo "<th>COST</th>";
+									echo "<th>OPTION</th>";
 									
 								echo "</tr>";
 								
 								while($row = $stmt->fetch(PDO::FETCH_ASSOC)) 
 								{					
 									//out record from database								
-									echo "<tr onclick='javascript:showRow(this);'>";
+									echo "<tr onclick='javascript:showOneway(this);'>";
 										echo "<td>" . $row['flightID'] . "</td>";
 										echo "<td>" . $row['flightName'] . "</td>";
 										echo "<td>" . $row['depatureCity']. "</td>";
@@ -290,14 +292,54 @@
 										echo "<td>" . $row['depatureDate']. "</td>";
 										echo "<td>" . $row['AmountOfSeats']. "</td>";
 										echo "<td>" . $row['cost']. "</td>";
-										
+										echo "<td> <button class='btn' style='color:blue;' onclick='onewayFunction()'>Select</button> </td>";
 									echo "</tr>";
-									} //end while
-								echo "</table>";
+								} //end while
+							echo "</table>";
 								
-								// Free result set
-								unset($result);
+							//Free result set
+							unset($stmt);
+							
+							if($_SERVER["REQUEST_METHOD"] == "POST")
+							{
+								//validates if flight is selected
+								if(isset($_POST['confirmBtn1']))
+								{
+									//Collect and clean flight data here
+									$flightId = cleanInputs($_POST['fID']);
+									$flightName = cleanInputs( $_POST['fName']);
+									$deptCity = cleanInputs( $_POST['departure']);
+									$arrCity = cleanInputs($_POST['destination']);
+									$dDay = cleanInputs($_POST['dDate']);
+									$flightCost  = cleanInputs($_POST['cost']);
+									
+									//verify that all flight infromation is set
+									if($flightId != "" && $flightName != "" && $deptCity != "" && $arrCity != "" && $dDay != "" && $flightCost != "")
+									{
+										//store flight details in session variable for payment
+										$_SESSION['flight_info'] = array(
+											'flightId' => $flightId,
+											'flightName' => $flightName,
+											'departure' => $deptCity,
+											'arrival' => $arrCity,
+											'departDate' => $dDay,
+											'flightCost' => $flightCost,
+											'passenger' => $noOfpassenger,
+										);
+									
+										//direct user to payment page
+										header("location:payment.php");
+										
+									} //end if
+									else
+									{
+										$msg = '<label style="color:red; font-size: 25px; margin: auto;">Choose your flight from flight table...!</label>';
+									} //end else
+									
+								} //end if isset
 								
+							} //end if post
+										
 						} // end if
 						else
 						{
@@ -317,7 +359,7 @@
 			//validates round trip flight search
 			else if ($trip != "" && $trip = "round trip") 
 			{
-				if($depCit != "" && $desCity != "" && $dDate != "" && $rDate != ""  )
+				if($depCity != "" && $arrCity != "" && $dDate != "" && $rDate != ""  )
 				{
 					//round trip flight search
 					try {
@@ -329,13 +371,13 @@
 						//join parameters
 						$string2 = "join flight_cost on flight.flightID = flight_cost.flightID";
 						//where parameters
-						$string3 = "depatureCity='$depCit' and destinationCity='$desCity' and depatureDate='$dDate' and returnDate ='rDate'";
+						$string3 = "depatureCity='$depCity' and destinationCity='$arrCity' and depatureDate='$dDate' and returnDate ='rDate'";
 								
 						//search database for matchig flights
 						$query = "$string1 from flight $string2 where $string3";					
 						$stmt = $conn->prepare($query);
-						$stmt->bindParam('depatureCity', $depCit, PDO::PARAM_STR);
-						$stmt->bindValue('destination', $desCity, PDO::PARAM_STR);
+						$stmt->bindParam('depatureCity', $$depCity, PDO::PARAM_STR);
+						$stmt->bindValue('destination', $arrCity, PDO::PARAM_STR);
 						$stmt->bindValue('depatureDate', $dDate, PDO::PARAM_STR);
 						$stmt->bindValue('returnDate', $rDate, PDO::PARAM_STR);
 						$stmt->execute();
@@ -346,7 +388,7 @@
 						if($count > 0 && !empty($row)) 
 						{
 							/******************** Display available flights***********************/
-							$fl_msg = "<h6> CHOOSE YOUR FLIGHT OPTION...!</h6>";
+							$fl_msg = "<h6> CHOOSE YOUR FLIGHT PLAN...!</h6>";
 							echo "<br>";
 							echo "<hr>";
 							echo $fl_msg;
@@ -363,12 +405,13 @@
 									echo "<th>RETURNDATE</th>";
 									echo "<th>AMOUNTOFSEATS</th>";
 									echo "<th>COST</th>";
+									echo "<th>OPTION</th>";
 									echo "</tr>";
 								
 								while($row = $stmt->fetch(PDO::FETCH_ASSOC)) 
 								{					
 									//out record from database								
-									echo "<tr onclick='javascript:showRow(this);'>>";
+									echo "<tr onclick='javascript:showRoundTrip(this);'>>";
 										echo "<td>" . $row['flightID'] . "</td>";
 										echo "<td>" . $row['flightName'] . "</td>";
 										echo "<td>" . $row['depatureCity']. "</td>";
@@ -377,12 +420,59 @@
 										echo "<td>" . $row['returnDate']. "</td>";
 										echo "<td>" . $row['AmountOfSeats']. "</td>";
 										echo "<td>" . $row['cost']. "</td>";
+										echo "<td> <button class='btn' style='color: blue;' onclick='roundTripFunction()'>Select</button> </td>";
 									echo "</tr>";
-									} //end while
+								} //end while
 							echo "</table>";
 								
-							// Free result set
-							unset($result);
+							//Free result set
+							unset($stmt);
+							
+							//display form for flight details
+							$display = 1;
+							
+							if($_SERVER["REQUEST_METHOD"] == "POST")
+							{
+								//validates if flight is selected
+								if(isset($_POST['confirmBtn2']))
+								{
+									//Collect and clean flight data here
+									$flightId = cleanInputs($_POST['fID']);
+									$flightName = cleanInputs( $_POST['fName']);
+									$deptCity = cleanInputs( $_POST['departure']);
+									$arrCity = cleanInputs($_POST['destination']);
+									$dDay = cleanInputs($_POST['dDate']);
+									$rDay = cleanInputs($_POST['returnDate']);
+									$flightCost  = cleanInputs($_POST['cost']);
+									
+									//verify that all flight infromation is set
+									if($flightId != "" && $flightName != "" && $deptCity != "" && $arrCity != "" && $dDay != "" && $rDay != "" && $flightCost != "")
+									{
+										//store flight details in session variable for payment
+										$_SESSION['flight_info'] = array(
+											'tripType' => $tripType, 
+											'flightId' => $flightId,
+											'flightName' => $flightName,
+											'departure' => $deptCity,
+											'arrival' => $arrCity,
+											'departDate' => $dDay,
+											'departDate' => $rDay,
+											'flightCost' => $flightCost,
+											'passenger' => $noOfpassenger,
+										);
+									
+										//direct user to payment page
+										header("location:payment.php");
+										
+									} //end if
+									else
+									{
+										$msg = '<label style="color:red; font-size: 25px; margin: auto;">Choose your flight from flight table...!</label>';
+									} //end else
+									
+								} //end if isset
+								
+							} //end if post
 							
 						} //else if
 						else
@@ -407,22 +497,12 @@
 					
 			echo"<br>";
 			echo $msg;
-			/*
-			if($_SERVER["REQUEST_METHOD"] == "POST")
-			{
-				if(isset($_POST['confirmBtn']))
-				{
-					header("location:payment.php");
-				}
-			}
-			*/
 		?>
 	</div>
 	
-	
 	<br><br>
-	<!-- form starts here -->
-	<div class="inner-container1">
+	<!-- oneway form starts here -->
+	<div class="inner-container1" style='display: none;' id="display1">
 	<hr>
 	<h5> CONFIRM FLIGHT DETAILS <h5>
 	<hr>
@@ -438,7 +518,7 @@
 		<br>
 		<div class="form-row">
 			<div class="col-6">
-				DEPART FROM <input type="text" id="depature" class="form-control" name="depature">
+				DEPART FROM <input type="text" id="departure" class="form-control" name="departure">
 			</div>
 			<div class="col-6">
 				DEPART TO <input type="text" id="destination" class="form-control" name="destination">
@@ -460,58 +540,110 @@
 		    </div>
 		</div>
 		<div class="col" align="right" >
-				<button type="submit" class="btn btn-primary" name="confirmBtn">Confirm</button>
+				<button type="submit" class="btn btn-primary" name="confirmBtn1">Confirm</button>
 		</div>
 	</form>
 	</div>
 	
-	<!---------------------------------------- script for table row values ---------------------------------->
-    
-   <script>
-		(function () {
-			if (window.addEventListener) {
-				window.addEventListener('load', run, false);
-			} else if (window.attachEvent) {
-				window.attachEvent('onload', run);
-			}
-
-		function run() {
-			var t = document.getElementById('tble');
-			t.onclick = function (event) {
-            event = event || window.event; //IE8
-            var target = event.target || event.srcElement;
-            while (target && target.nodeName != 'TR') { // find TR
-                target = target.parentElement;
-            }
-            //if (!target) { return; } //tr should be always found
-            var cells = target.cells; //cell collection 
-            //var cells = target.getElementsByTagName('td'); //alternative
-            if (!cells.length || target.parentNode.nodeName == 'THEAD') {
-                return;
-            } //end if
+	<br><br>
+	<!-- round trip form starts here -->
+	<div class="inner-container1" style='display: none;' id="display2">
+	<hr>
+	<h5> CONFIRM FLIGHT DETAILS <h5>
+	<hr>
+	<form action="" method="POST">
+		<div class="form-row">
+			<div class="col-6">
+				FLIGHT ID <input type="text" id="fID" class="form-control" name="fID">
+			</div>
+			<div class="col-6">
+				FLIGHT NAME <input type="text" id="fName" class="form-control" name="fName">
+			</div>
+		</div>
+		<br>
+		<div class="form-row">
+			<div class="col-6">
+				DEPART FROM <input type="text" id="departure" class="form-control" name="departure">
+			</div>
+			<div class="col-6">
+				DEPART TO <input type="text" id="destination" class="form-control" name="destination">
+			</div>
+		</div>
+		<br>
+		<div class="form-row">
+			<div class="col-6">
+				DEPARTURE DATE <input type="text" id="dDate" class="form-control" name="dDate">
+			</div>
+			<div class="col-6">
+				RETURN DATE <input type="text" id="rDate" class="form-control" name="rDate">
+			</div>
+		</div>
+		<div class="form-row">
+			<div class="col-6">
+				SEATS <input type="text" id="AmountOfSeats" class="form-control" name="AmountOfSeats">
+			</div>
+		    <div class="col-6">
+		    	
+		      COST <input type="text" id="cost" class="form-control" name="cost">
+		    </div>
+		</div>
+		<div class="col" align="right" >
+				<button type="submit" class="btn btn-primary" name="confirmBtn2">Confirm</button>
+		</div>
+	</form>
+	</div>
+	
+	<script language="javascript" type="text/javascript">
+		<!-- capture table valus -->
+		function showOneway(row)
+		{
+			var x=row.cells;
 			
-            var f1 = document.getElementById('fID');
-			var f2 = document.getElementById('fName');
-			var f3 = document.getElementById('depature');
-			var f4 = document.getElementById('destination');
-			var f5 = document.getElementById('dDate');
-			var f6 = document.getElementById('AmountOfSeats');
-			var f7 = document.getElementById('cost');
-			
-			f1.value = cells[0].innerHTML;
-			f2.value = cells[1].innerHTML;
-			f3.value = cells[2].innerHTML;
-			f4.value = cells[3].innerHTML;
-			f5.value = cells[4].innerHTML;
-			f6.value = cells[5].innerHTML;
-			f7.value = cells[6].innerHTML;
-            //console.log(target.nodeName, event);
-			};
+			document.getElementById("fID").value = x[0].innerHTML;
+			document.getElementById("fName").value = x[1].innerHTML;
+			document.getElementById("departure").value = x[2].innerHTML;
+			document.getElementById("destination").value = x[3].innerHTML;
+			document.getElementById("dDate").value = x[4].innerHTML;
+			document.getElementById("AmountOfSeats").value = x[5].innerHTML;
+			document.getElementById("cost").value = x[6].innerHTML;
 		}
-
-		})();
+		
+		<!-- capture table valus -->
+		function showRoundTrip(row)
+		{
+			var x=row.cells;
+			
+			document.getElementById("fID").value = x[0].innerHTML;
+			document.getElementById("fName").value = x[1].innerHTML;
+			document.getElementById("departure").value = x[2].innerHTML;
+			document.getElementById("destination").value = x[3].innerHTML;
+			document.getElementById("dDate").value = x[4].innerHTML;
+			document.getElementById("rDate").value = x[5].innerHTML;
+			document.getElementById("AmountOfSeats").value = x[6].innerHTML;
+			document.getElementById("cost").value = x[7].innerHTML;
+		}
+		
+		//display oneway flight information
+		function onewayFunction() {
+			var x = document.getElementById("display1");
+			if (x.style.display === "none") {
+				x.style.display = "block";
+			} else {
+				x.style.display = "none";
+			}
+		}
+		
+		//display oneway flight information
+		function roundTripFunction() {
+			var x = document.getElementById("display2");
+			if (x.style.display === "none") {
+				x.style.display = "block";
+			} else {
+				x.style.display = "none";
+			}
+		}
 	</script>
-
+	
 	<!---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------> 
 	<!-- jQuery first, then Bootstrap JS. -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>

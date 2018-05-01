@@ -36,12 +36,36 @@
 	//check if customer exist 
 	if ($email != "" && $pswd != "")
 	{
-		include("connection.php");
-		
 		$status = 0;
 		//registered customer discount calculation
 		$discount = processDiscount($payment);
 		$payment = flightCost($no_Of_Person, $ticket_Cost) + $discount;
+		/*
+		//varibles for payment session
+		try {
+			//database connection
+			include("connection.php");
+			
+			//search parameters
+			$string1 = "select flight_cost.flightID,flightName,depatureCity,destinationCity,depatureDate,AmountOfSeats,cost";
+			//join parameters
+			$string2 = "join flight_cost on flight.flightID = flight_cost.flightID";
+			//where parameters
+			$string3 = "depatureCity='$depCity' and destinationCity='$arrCity' and depatureDate='$dDate'";
+					
+			//search database for matchig flights
+			$query = "$string1 from flight $string2 where $string3";					
+			$stmt = $conn->prepare($query);
+			$stmt->bindParam('depatureCity', $depCity, PDO::PARAM_STR);
+			$stmt->bindValue('destination', $arrCity, PDO::PARAM_STR);
+			$stmt->bindValue('depatureDate', $dDate, PDO::PARAM_STR);
+			$stmt->execute();
+			$count = $stmt->rowCount();
+			$row   = $stmt->fetch(PDO::FETCH_ASSOC);
+			  
+			//validates if matchig flight was found
+			if($count > 0 && !empty($row)) 
+			*/	
 	} //end if
 	else
 	{
@@ -106,9 +130,17 @@
 			height: 3px;
 			background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));
 		}
+		
+		body { 
+			  background: url(assets/images/home.jpg) no-repeat center center fixed; 
+			  -webkit-background-size: cover;
+			  -moz-background-size: cover;
+			  -o-background-size: cover;
+			  background-size: cover;
+		}
 	</style>
 </head>
-<body background="assets/images/home.jpg" >
+<body>
 	
 	<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top" role="navigation">
 	    <div class="container">
