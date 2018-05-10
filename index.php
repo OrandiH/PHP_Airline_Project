@@ -224,7 +224,7 @@
 				echo  $m; 
 				
 				//direct user to flight page
-				header("location:flight.php");
+				exit(header("Location:flight.php"));
 				
 			} //end if
 			
@@ -368,7 +368,6 @@
 	  </div>
 	</div>
 
-
 	<div class="container container-body">
 		<form action="" method="POST">
 			<div class="form-row">
@@ -376,11 +375,11 @@
 					<center>
 					<div class="btn-group btn-group-toggle btn-primary" data-toggle="buttons">
 					  <label class="btn btn-primary active">
-					    <input type="radio" name="tripType" id="option1" autocomplete="off" checked onChange="disablefield();"> Round Trip
+					    <input type="radio" name="tripType" id="option1" autocomplete="off" checked onChange="disablefield();" value="round trip"> Round Trip
 					  </label>
 					  <br>
 					  <label class="btn btn-primary">
-					    <input type="radio" name="tripType" id="option2" autocomplete="off" onChange="disablefield();"> One Way
+					    <input type="radio" name="tripType" id="option2" autocomplete="off" onChange="disablefield();" value="oneway"> One Way
 					  </label>
 					</div>
 					</center>
@@ -437,6 +436,7 @@
 				document.getElementById('returnDate').value='Allowed';
 			} 
 		}
+		
 
 		function readURL(input) {
             if (input.files && input.files[0]) {

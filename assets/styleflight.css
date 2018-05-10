@@ -1,0 +1,45 @@
+table { 
+	font-size: 15px;
+	color: teal;
+	margin: auto;
+	background: rgba(255, 255, 255, 0.75);
+	font-family: Helvetica, Arial, sans-serif;
+}
+
+td, th {  
+	border: 1px solid transparent; /* No more visible border */
+	height: 30px; 
+	transition: all 0.3s;  /* Simple transition for hover effect */
+}
+th {  
+	background: #33FFDA;  /* Darken header a bit */
+	font-weight: bold;
+}
+
+td {  
+	
+	text-align: center;
+}
+
+table tr:not(:first-child){
+	cursor: pointer;transition: all .25s ease-in-out;
+}
+
+table tr:not(:first-child):hover {
+	background-color: #ddd; color: orange;
+	}
+
+p {
+	font-size: 18px;
+	color: blue;
+}
+
+.inner-container1{
+	background: rgba(255, 255, 255, 0.75);
+	border-radius: 10px;
+	padding: 20px;
+	width: 60%;
+	height: 450px; 
+	margin: auto;
+}
+
