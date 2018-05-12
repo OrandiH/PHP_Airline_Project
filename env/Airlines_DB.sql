@@ -2,17 +2,10 @@
 -- version 4.7.9
 -- https://www.phpmyadmin.net/
 --
-<<<<<<< HEAD
--- Host: 127.0.0.1:3306
--- Generation Time: Apr 25, 2018 at 04:58 AM
--- Server version: 5.7.19
--- PHP Version: 5.6.31
-=======
 -- Host: localhost
 -- Generation Time: Apr 25, 2018 at 05:37 AM
 -- Server version: 10.1.31-MariaDB
 -- PHP Version: 7.0.28
->>>>>>> 6aed7924a3f6628fd0f17bbd1dc5fde09a52f15f
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET AUTOCOMMIT = 0;
@@ -26,11 +19,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
-<<<<<<< HEAD
--- Database: `airlines_db`
-=======
 -- Database: `Airlines_DB`
->>>>>>> 6aed7924a3f6628fd0f17bbd1dc5fde09a52f15f
 --
 CREATE DATABASE IF NOT EXISTS `Airlines_DB` DEFAULT CHARACTER SET latin1 COLLATE latin1_swedish_ci;
 USE `Airlines_DB`;
@@ -62,19 +51,12 @@ INSERT INTO `admin` (`username`, `password`, `firstname`, `lastname`, `age`) VAL
 -- Table structure for table `booked_flights`
 --
 
-<<<<<<< HEAD
 DROP TABLE IF EXISTS `booked_flights`;
 CREATE TABLE IF NOT EXISTS `booked_flights` (
   `BookingID` int(11) NOT NULL AUTO_INCREMENT,
   `flightID` varchar(30) DEFAULT NULL,
   `userName` int(50) NOT NULL,
   PRIMARY KEY (`BookingID`)
-=======
-CREATE TABLE `booked_flights` (
-  `BookingID` int(11) NOT NULL,
-  `flightID` varchar(30) DEFAULT NULL,
-  `userName` int(50) NOT NULL
->>>>>>> 6aed7924a3f6628fd0f17bbd1dc5fde09a52f15f
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
@@ -122,12 +104,7 @@ CREATE TABLE `customer_payment` (
 -- Table structure for table `flight`
 --
 
-<<<<<<< HEAD
-DROP TABLE IF EXISTS `flight`;
-CREATE TABLE IF NOT EXISTS `flight` (
-=======
 CREATE TABLE `flight` (
->>>>>>> 6aed7924a3f6628fd0f17bbd1dc5fde09a52f15f
   `flightID` varchar(30) NOT NULL,
   `flightName` varchar(30) NOT NULL,
   `depatureCity` varchar(30) NOT NULL,
@@ -141,24 +118,17 @@ CREATE TABLE `flight` (
 -- Dumping data for table `flight`
 --
 
-INSERT INTO `flight` (`flightID`, `flightName`, `depatureCity`, `destinationCity`, `depatureDate`, `returnDate`, `AmountOfSeats`) VALUES
-<<<<<<< HEAD
-('AA1', 'American Airlines', 'JA', 'LA', '2018-04-25', '2018-04-25', 6),
-('AA2', 'American Airlines', 'JA', 'LA', '2018-04-25', '2018-04-25', 8),
-('AA3', 'Jet Blue', 'JA', 'LA', '2018-04-25', '2018-04-25', 3),
-('JB4', 'Jet Blue', 'JA', 'LA', '2018-04-25', '2018-04-25', 2);
-=======
-('FLG1001', 'DZ9081', 'Kingston', 'Miami', '2018-04-10', '2018-04-22', 2),
-('FLG1002', 'BH2341', 'Montego Bay', 'New York', '2018-05-02', '0000-00-00', 9),
-('FLG1003', 'DR2192', 'Kingston', 'Detroit', '2018-04-30', '2018-04-10', 10),
-('FLG1004', 'DM8728', 'Montego Bay', 'California', '2018-05-03', '0000-00-00', 7),
-('FLG1005', 'JN4128', 'Kingston', 'Atlanta', '2018-04-29', '0000-00-00', 6),
-('FLG1006', 'AS4618', 'Kingston', 'Miami', '2018-04-30', '2018-05-02', 5),
-('FLG1007', 'AD5728', 'California', 'Paris', '2018-05-04', '2018-05-20', 7),
-('FLG1008', 'HJ8902', 'Miami', 'Toronto', '2018-05-01', '0000-00-00', 9),
-('FLG1009', 'JK8347', 'New York', 'London', '2018-05-03', '2018-05-16', 9),
-('FLG1010', 'LP4562', 'Miami', 'Kingston', '2018-05-06', '0000-00-00', 7);
->>>>>>> 6aed7924a3f6628fd0f17bbd1dc5fde09a52f15f
+INSERT INTO `flight` (`flightID`, `flightName`, `airlineName`, `depatureCity`, `destinationCity`, `depatureDate`, `returnDate`, `AmountOfSeats`) VALUES
+('FLG1001', 'DZ9081', 'JetBlue', 'Kingston', 'Miami', '2018-04-10', '2018-04-22', 2),
+('FLG1002', 'BH2341', 'American Airlines', 'Montego Bay', 'New York', '2018-05-02', '0000-00-00', 9),
+('FLG1003', 'DR2192', 'Delta', 'Kingston', 'Detroit', '2018-04-30', '2018-04-10', 10),
+('FLG1004', 'DM8728', 'Spirit', 'Montego Bay', 'California', '2018-05-03', '0000-00-00', 7),
+('FLG1005', 'JN4128', 'Delta', 'Kingston', 'Atlanta', '2018-04-29', '0000-00-00', 6),
+('FLG1006', 'AS4618', 'American Airlines', 'Kingston', 'Miami', '2018-04-30', '2018-05-02', 5),
+('FLG1007', 'AD5728', 'JetBlue', 'California', 'Paris', '2018-05-04', '2018-05-20', 7),
+('FLG1008', 'HJ8902', 'Spirit', 'Miami', 'Toronto', '2018-05-01', '0000-00-00', 9),
+('FLG1009', 'JK8347', 'American Airlines', 'New York', 'London', '2018-05-03', '2018-05-16', 9),
+('FLG1010', 'LP4562', 'Delta', 'Miami', 'Kingston', '2018-05-06', '0000-00-00', 7);
 
 -- --------------------------------------------------------
 

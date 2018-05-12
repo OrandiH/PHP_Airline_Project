@@ -1,15 +1,6 @@
 <?php
 	session_start();
 
-	//Define empty variables for errors
-	$fNameErr = "";
-	$passwdErr = "";
-	$LNameErr = "";
-	$emailErr = "";
-	$ageErr = "";
-	$addressErr = "";
-	$ccNumErr = "";
-	$Val = 0; 
 	$errFlag = 0; //This is needed to identify errors
 	
 	//Define empty booking variables
@@ -19,7 +10,7 @@
 	$serverName = "localhost";
 	$dbUserName = "root";
 	$dbPassword = "";
-	$dbName = "Airlines_db";
+	$dbName = "Airlines_DB";
 
 	//Variables to store hashed values
 	$hash_password = "";
@@ -40,7 +31,7 @@
 			{
 				return $response; //If the values are empty return 0 
 			}else if($errFlag == 1){
-				return $response; //IF an error occurs return the value in $response
+				return $response; //If an error occurs return the value in $response
 			}
 			else{
 				$response = 1;//If the response is 1 set session values
@@ -77,8 +68,6 @@
 
 
 	if($_SERVER["REQUEST_METHOD"] == "POST"){
-		
-		
 		if(isset($_POST['registerBtn'])){
 			//Collect form data here
 			$userFirstName = $_POST['userFirstName'];
@@ -89,7 +78,6 @@
 			$userAddress = $_POST['userAddress'];
 			$userCCNum = $_POST['userCCNum'];
 
-		
 			//First level of sanitation here
 			$cleanFirstName = cleanInputs($userFirstName);
 			$cleanLastName = cleanInputs($userLastName);
@@ -100,73 +88,87 @@
 			$cleanCCNum = cleanInputs($userCCNum);
 
 			$profile_pic = ""; //to be used for bonus marks
-
 			$passwdErr = verifyPasswordLength($cleanPassword);
 
 			$hash_creditNum = md5($cleanCCNum);
 			$hash_password = password_hash($cleanPassword,PASSWORD_DEFAULT);
 
+				//Validate username
+				if(!preg_match("/^([A-Z]{1})([A-Za-z-])?/", $cleanFirstName))
+				{
+					$fNameErr = "Firstname is invalid";
+					$errFlag = 1;
+				}
+				//Validate full name
+				if(!preg_match("/^([A-Z]{1})([A-Za-z-])?/", $cleanLastName))
+				{
+					$LNameErr = "Lastname is invalid";
+					$errFlag = 1;
+				}
+				//Validate email
+				if(!filter_var($cleanEmail,FILTER_VALIDATE_EMAIL))
+				{
+					$emailErr = "Email is invalid";
+					$errFlag = 1;
+				}
+				//Validate address
+				if(!preg_match("/^[0-9a-zA-Z,. ]+/", $cleanAddress))
+				{
+					$addressErr = "Address is invalid";
+					$errFlag = 1;
+				}
+				//Validate age
+				if(!filter_var($cleanAge,FILTER_VALIDATE_INT))
+				{
+					$ageErr = "Age is invalid";
+					$errFlag = 1;
+				}
+				//Validate credit card num
+				if(!preg_match("/^(?:4[0-9]{12}(?:[0-9]{3})?",$cleanCCNum)){
+					$ccNumErr = "Credit card isn't valid";
+					$errFlag = 1;
+				}
 
-			$profilePic = "";
-
-
-
-			//Connect to DB and enter data
-			//Validate username
-			if(!preg_match("/^([A-Z]{1})([A-Za-z-])?/", $cleanFirstName))
-			{
-				$nameErr = "Firstname is invalid";
-				$errFlag = 1;
-			}
-			//Validate full name
-			if(!preg_match("/^([A-Z]{1})([A-Za-z-])?/", $cleanLastName))
-			{
-				$wholeNameErr = "Lastname is invalid";
-				$errFlag = 1;
-			}
-			//Validate email
-			if(!filter_var($cleanUserEmail,FILTER_VALIDATE_EMAIL))
-			{
-				$emailErr = "Email is invalid";
-				$errFlag = 1;
-			}
-			//Validate address
-			if(!preg_match("/^[0-9a-zA-Z,. ]+/", $cleanAddress))
-			{
-				$addressErr = "Address is invalid";
-				$errFlag = 1;
-			}
-			//Validate age
-			if(!filter_var($cleanAge,FILTER_VALIDATE_INT))
-			{
-				$ageErr = "Age is invalid";
-				$errFlag = 1;
-			}
-			//Validate credit card num
-			if(!preg_match("^(?:4[0-9]{12}(?:[0-9]{3})?",$cleanCCNum)){
-				$ccNumErr = "Credit card isn't valid";
-				$errFlag = 1;
-			}
-
-			//Pass in validated information
-			$Val = process_customer_query($cleanFirstName,$cleanLastName,$cleanPassword
+				//Pass in validated information
+			$Val = processFormData($cleanFirstName,$cleanLastName,$cleanPassword
 			,$cleanEmail,$cleanAge,$cleanAddress,$cleanCCNum,$errFlag);
 
 			//Connect to DB and enter data
+			
+
+				if($Val == 1){
+					echo '<script>$("#registerModal").modal("show");</script>';
+				}else{
+					echo '<script>$("#registerModal").modal("hide");</script>';
+				}
+
+
+		}
+
+}
+
+
+		/*
+		if(isset($_POST['registerBtn'])){
+			echo "<h1>Test</h1>";
+			
+
+		
+
+			
 			try{
-				//Set DB connection
-				$conn = new PDO("mysql:host=$serverName;dbname=$dbName",$dbUserName,$dbPassword);
-				$conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-				
-				
 				//establish database connection
 						
-						$conn = new PDO("mysql:host=$serverName;dbname=$dbName",$dbUserName,$dbPassword);
-						// set the PDO error mode to exception
-						$conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-						//set the default PDO fetch mode to object
-						$conn->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_OBJ);
+				$conn = new PDO("mysql:host=$serverName;dbname=$dbName",$dbUserName,$dbPassword);
+				// set the PDO error mode to exception
+				$conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+				//set the default PDO fetch mode to object
+				$conn->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_OBJ);
+	
 
+		
+
+			
 				//Set queries for inserting into DB
 				$sql = "INSERT INTO customer (userName,firstName,lastName,age,mailAddress,credit_card_Num, profile_pic) VALUES 
 				('$cleanEmail','$cleanFirstName','$cleanLastName','$cleanAge','$cleanAddress','$hash_creditNum', '$profilePic')";
@@ -182,9 +184,7 @@
 				unset($sql);
 				unset($sq2);
 				
-				echo '<div class="alert alert-success">
-				  <strong>Success!</strong> Record Added
-				</div>';
+			
 
 				//header('Refresh: 2; URL=index.php');
 
@@ -193,7 +193,8 @@
 			}
 				$conn = null;//Close connection to db
 			} //end if
-			else if(isset($_POST['loginBtn']))
+			
+			if(isset($_POST['loginBtn']))
 			{
 				//direct user to flight page
 				header("location:flight.php");
@@ -229,6 +230,7 @@
 			} //end if
 			
 	} // end if post
+	*/
 ?>
 
 
@@ -302,49 +304,49 @@
 			</button>
 		  </div>
 		  <div class="modal-body">
-			
 			<!-- form starts here -->
-			<form action="<?php echo htmlentities($_SERVER['PHP_SELF']); ?>" method="POST">
+			<span class="alert alert-danger display-error" style="display: none"></span>
+			<form role="form" id="registerForm">
+			<div class="form-row">
+				<div class="col-6">
+				</div>
+			</div>
 			  <div class="form-row">
 				<div class="col-6">
-				<input type="text" class="form-control" placeholder="First Name" name="userFirstName">
+				<input type="text" class="form-control" placeholder="First Name" name="userFirstName" id="firstName">
 			  </div>
 				<div class="col-6">
-				  <input type="text" class="form-control" placeholder="Last Name" name="userLastName">
+				  <input type="text" class="form-control" placeholder="Last Name" name="userLastName" id="lastName">
 				</div>
 			  </div>
 			  <br>
 			  <div class="form-row row">
 				<div class="col">
-					<input type="email" class="form-control" name="userEmail" placeholder="Email">
+					<input type="email" class="form-control" name="userEmail" placeholder="Email" id="email">
 				</div>
 			  </div>
 			  <br>
 			  <div class="form-row row">
 				<div class="col">
-					<input type="password" class="form-control" name="userPassword" placeholder="Password">
+					<input type="password" class="form-control" name="userPassword" placeholder="Password" id="password">
 				</div>
 			  </div>
 			  <br>
 			  <div class="form-row">
 				<div class="col-6">
-					<select class="form-control placeholder">
-					   <option value="">Select Card Type</option>
-					   <option value="1">American Express</option>
-					   <option value="2">MasterCard</option>
-					   <option value="3">Discover</option>
-					   <option value="4">Visa</option>
-					   <option value="5">PayPal</option>
-					</select>
+				  <input type="text" class="form-control" placeholder="Credit Card Number" name="userCCNum" id="cardNum">
+					
 				</div>
 				<div class="col-6">
-				  <input type="text" class="form-control" placeholder="Credit Card Number" name="userCCNum">
+				  <input type="text" class="form-control" placeholder="Age" name="userAge" id="age">
+					
 				</div>
 			  </div>
 			  <br>
 			   <div class="form-row">
 				<div class="col">
-				  <input type="text" class="form-control" placeholder="Address" name="userAddress">
+				  <input type="text" class="form-control" placeholder="Address" name="userAddress" id="address">
+					
 				</div>
 			  </div>
 			  <br>
@@ -356,14 +358,11 @@
 			  </div>
 			  <br>
 			 <div class="d-flex justify-content-between">
-			 <button type="button float-right" class="btn btn-primary" href="#" id="registerBtn">Register</button>
+			 <button type="submit" class="btn btn-primary" name="registerBtn" id="submit">Register</button>
 			  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
 			</div>
 			</form>
 			</div>
-		<div class="modal-footer">
-				
-				</div>
 		</div>
 	  </div>
 	</div>
@@ -422,7 +421,6 @@
 		</form>
 	</div>
 	</div>
-
 	</div>
 
 	<script type="text/javascript"> 
@@ -437,7 +435,6 @@
 			} 
 		}
 		
-
 		function readURL(input) {
             if (input.files && input.files[0]) {
                 var reader = new FileReader();
@@ -449,21 +446,43 @@
             }
         } 
 	</script>
-	
-	<!---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------> 
-	<!--Scripts for form validation-->
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-
-	<script src="https://cdn.jsdelivr.net/jquery.validation/1.15.1/jquery.validate.min.js"></script>
-
-	<script src="assets/js/formValidation.js"></script>
-
-
-	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-
-	<!---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------> 
-	
+<!--Script for validation-->
+<script type="text/javascript">
+  $(document).ready(function() {
+      $('#submit').click(function(e){
+        e.preventDefault();
+				//Variables for data to be sent for validation
+        var firstname = $("#firstName").val();
+				var lastname = $("#lastName").val();
+        var email = $("#email").val();
+				var password = $("#password").val();
+				var cardNum = $("#cardNum").val();
+				var age = $("#age").val();
+        var address = $("#address").val();
+				//AJAX call
+        $.ajax({
+            type: "POST",
+            url: "/PHP_Airline_Project/registerDataProcess.php",
+						dataType: "json",
+            data: {"firstname":firstname, "lastname":lastname,"email":email,"password":password,"cardnum":cardNum, "age":age,"address":address},
+            success : function(data){
+                if (data.code == "200"){
+                    alert("Success: Record added!");
+										$("#registerModal").modal("hide");
+                } else {
+                    $(".display-error").html("<ul>"+data.msg+"</ul>");
+                    $(".display-error").css("display","block");
+                }
+            },
+						error: function(){
+							alert("Sumn no right!");
+						}	
+        });
+      });
+  });
+</script>
+<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 </body>
 </html>

@@ -1,8 +1,6 @@
 <?php
 	session_start();
-?>
-
-<?php		
+	echo "<br><br>";
 	//local variables
 	$msg = $fl_msg = "";
 	$trip = $depCity = $arrCity = $dDate = $rDate = $flightId = $flightName = $flightCost = "";
@@ -18,14 +16,94 @@
 	//set session values for payment
 	$_SESSION['flight_info']['tripType'] = $trip;
 	
-	//Function to clean inputs received from form
-	function cleanInputs($value){
-
-		$value = trim($value);
-		$value = stripcslashes($value);
-		$value = htmlspecialchars($value);
-		return $value;
-	}	
+	if($_SERVER["REQUEST_METHOD"] == "POST")
+	{
+		//validates if flight is selected
+		if(isset($_POST['confirmBtn1']))
+		{
+			//flight data here
+			$flightId = $_POST['fID'];
+			$flightName = $_POST['fName'];
+			$deptCity = $_POST['departure'];
+			$arrCity = $_POST['destination'];
+			$dDay = $_POST['dDate'];
+			$flightCost  = $_POST['cost'];
+			
+			//verify that all flight infromation is set
+			if($flightId != "" && $flightName != "" && $deptCity != "" && $arrCity != "" && $dDay != "" && $flightCost != "")
+			{
+				//store flight details in session variable for payment
+				$_SESSION['flight_info'] = array(
+					'flightId' => $flightId,
+					'flightName' => $flightName,
+					'departure' => $deptCity,
+					'arrival' => $arrCity,
+					'departDate' => $dDay,
+					'flightCost' => $flightCost,
+					'tripType' => $trip,
+					'passenger' => $noOfpassenger,
+				);
+				
+				//direct user to payment page
+				exit(header("Location:payment.php"));
+		
+			} //end if
+			else
+			{
+				$msg = '<label style="color:red; font-size: 25px; margin: auto;">Choose your flight plan from flight table...!</label>';
+			} //end else
+		
+		} //end if isset
+		else if(isset($_POST['confirmBtn2']))
+		{
+			//Collect flight data here
+			$flightId = $_POST['fID'];
+			$flightName = $_POST['fName'];
+			$deptCity = $_POST['departure'];
+			$arrCity = $_POST['destination'];
+			$dDay = $_POST['dDate'];
+			$rDay = $_POST['rDate'];
+			$flightCost  = $_POST['cost'];
+			
+			//verify that all flight infromation is set
+			if($flightId != "" && $flightName != "" && $deptCity != "" && $arrCity != "" && $dDay != "" && $rDay != "" && $flightCost != "")
+			{
+				//store flight details in session variable for payment
+				$_SESSION['flight_info'] = array(
+					'tripType' => $tripType, 
+					'flightId' => $flightId,
+					'flightName' => $flightName,
+					'departure' => $deptCity,
+					'arrival' => $arrCity,
+					'departDate' => $dDay,
+					'returnDate' => $rDay,
+					'flightCost' => $flightCost,
+					'tripType' => $trip,
+					'passenger' => $noOfpassenger,
+				);
+			
+				//direct user to payment page
+				header("location:payment.php");
+				
+			} //end if
+			else
+			{
+				$msg = '<label style="color:red; font-size: 25px; margin: auto;">Choose your flight from flight table...!</label>';
+			} //end else
+			
+		} //end if isset
+		
+		if(isset($_POST['homeBtn']))
+		{
+			header("location:index.php");
+		} //
+		else
+		{
+			$msg = '<label style="color:red; font-size: 25px; margin: auto;">We are experiencing some technical difficulties. Please try again later...!</label>';
+		}
+		
+	} //end if post
+												
 ?>				
 
 <!DOCTYPE html>
@@ -37,48 +115,61 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
 	
+	<link rel="stylesheet" type="text/css" href="assets/styleflight.css">
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-	
 	<!-- bootstrap css -->
     <link rel="stylesheet" href="https://cdn.rawgit.com/twbs/bootstrap/v4-dev/dist/css/bootstrap.css">
 	
 	<style>
-		table { 
-			font-size: 15px;
-			color: teal;
+		body { 
+			  background: url(assets/images/home.jpg) no-repeat center center fixed; 
+			  -webkit-background-size: cover;
+			  -moz-background-size: cover;
+			  -o-background-size: cover;
+			  background-size: cover;
+		}
+		
+		.container1 {
+			color: white;
+			width: 300px;
 			margin: auto;
-			background: rgba(255, 255, 255, 0.75);
-			font-family: Helvetica, Arial, sans-serif;
-		}
-		
-		td, th {  
-			border: 1px solid transparent; /* No more visible border */
-			height: 30px; 
-			transition: all 0.3s;  /* Simple transition for hover effect */
+			border-radius: 10px;
+			background: red;
+			-webkit-animation: mymove 5s infinite; /* Safari 4.0 - 8.0 */
+			animation: mymove 5s infinite;
 		}
 
-		th {  
-			background: #33FFDA;  /* Darken header a bit */
-			font-weight: bold;
+		/* Safari 4.0 - 8.0 */
+		@-webkit-keyframes mymove {
+			50% {background-color: blue;}
+		}
+
+		@keyframes mymove {
+			50% {background-color: blue;}
 		}
 		
-		td {  
-			
+		
+		h6 {
 			text-align: center;
+			color: white; 
+			font-size: 15px;
 		}
 		
-		table tr:not(:first-child){
-			cursor: pointer;transition: all .25s ease-in-out;
-        }
-		
-        table tr:not(:first-child):hover {
-			background-color: #ddd; color: orange;
-			}
 
+		h5 {
+			text-align: center;
+			color: blue; 
+			font-size: 15px;
+		}
+
+		h3 {
+			color: white;
+			font-size: 25px;
+		}	
 		
-		p {
-			font-size: 18px;
-			color: blue;
+		h1 {
+			color: white; 
+			font-family:bookman;
 		}
 		
 		/* Gradient transparent - color - transparent */
@@ -88,72 +179,71 @@
 			background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));
 		}
 		
+		.btn:hover,
+		.btn:focus,
+		.btn:active {
+			outline: 0 !important;
+		}
+		
 		.inner-container{
 			background: rgba(255, 255, 255, 0.75);
 			border-radius: 10px;
 			padding-left: 20px;
 			padding-right: 20px;
 			width: 80%;
-			height: 500px; 
+			height: 550px; 
 			margin: auto;
 		}
 		
-		.inner-container1{
-			background: rgba(255, 255, 255, 0.75);
-			border-radius: 10px;
-			padding: 20px;
-			width: 60%;
-			height: 450px; 
-			margin: auto;
+		#myInput {
+			width: 230px;
+			font-size: 16px;
+			padding: 10px 20px 10px 20px;
+			border-radius: 30px;
+			margin-bottom: 12px;
 		}
 		
-		h6 {
-			text-align: center;
-			color: blue; 
-			font-size: 25px;
-		}
-		
-		h5 {
-			text-align: center;
-			color: blue; 
-			font-size: 15px;
-		}
-		
-		h3 {
-			color: white;
-			font-size: 25px;
-		}	
-		
-		body { 
-			  background: url(assets/images/home.jpg) no-repeat center center fixed; 
-			  -webkit-background-size: cover;
-			  -moz-background-size: cover;
-			  -o-background-size: cover;
-			  background-size: cover;
+		#myInput:focus {
+			background-color: #33FFDA;
 		}
 	</style>
 </head>
 
 <body>
-	<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top" role="navigation">
-	    <div class="container">
-	        <h3>FLIGHT OPTION</h3>
-	        <button class="navbar-toggler border-0" type="button" data-toggle="collapse" data-target="#exCollapsingNavbar">
-	            &#9776;
-	        </button>
-	        <div class="collapse navbar-collapse" id="exCollapsingNavbar">
-	            <ul class="nav navbar-nav flex-row justify-content-between ml-auto">
-	                <li class="nav-item">
-	                    <button type="button" class="btn btn-outline-primary">
-							<a href="index.php" class="nav-link">Return to Home</a>
-						</button>
-	                </li>
-	            </ul>
-	        </div>
-	    </div>
-	</nav>
-	<br><br> <br><br><br>
+	<form action="flight.php" method="POST">
+		<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top" role="navigation">
+			<div class="container">
+				<h3>FLIGHT OPTION</h3>
+				<button class="navbar-toggler border-0" type="button" data-toggle="collapse" data-target="#exCollapsingNavbar">
+					&#9776;
+				</button>
+				<div class="collapse navbar-collapse" id="exCollapsingNavbar">
+					<ul class="nav navbar-nav flex-row justify-content-between ml-auto">
+						<li class="nav-item">
+							<button type="submit" name="homeBtn" class="btn btn-outline-primary">
+								Return to Home
+							</button>
+						</li>
+					</ul>
+					</ul>
+				</div>
+			</div>
+		</nav>
+	</form>
+	<br><br> <br><br>
 	
+	<div  class="text-center">
+		<h1>ONLINE FLIGHT RESERVATION<h1>
+		<?php 
+			// Prints the day, date, month, year, time, AM or PM
+			echo "<label style='font-size:25px; font-family:bookman;'> CURRENT DATE: "  . date('l jS \of F Y') . "</label>";
+		?>
+		<hr style="width: 500px; font-family:bookman;">
+	</div>
+	<div  class="text-center" style='font-size:25px; colorwhite;'>
+	<br><br><br>
+	
+	</div>
 	<!-- carouse starts here -->
 		<div class="inner-container">
 			<br>
@@ -224,6 +314,12 @@
         			<span class="sr-only">Next</span>
         		</a>
         	</div>
+			<p style="text-align: center; color: black; font-size: 12px;">
+				<br><br>
+				The most convenient ways to make your reservation and purchase your electronic tickets is via our Website!
+				<br>
+				Our reservation site will offer you the lowest available fare for the date and locations you specify. Please note that conditions may apply to your fare.
+			</p>
         </div>
 		<br><br>
       </div>
@@ -232,10 +328,10 @@
 	<div style="margin: 0px;">
 		<?php
 			//validates oneway trip flight search
-			if($trip != "" && $trip = "oneway"){
+			if($trip != "" && $trip == "oneway"){
 				if($depCity != "" && $arrCity != "" && $dDate!= "") 
 				{
-					//varibles for payment session
+					//try database for connection
 					try {
 						//database connection
 						include("connection.php");
@@ -256,26 +352,30 @@
 						$stmt->execute();
 						$count = $stmt->rowCount();
 						$row   = $stmt->fetch(PDO::FETCH_ASSOC);
-						  
+
 						//validates if matchig flight was found
 						if($count > 0 && !empty($row)) 
 						{
 							/******************** Display available flights***********************/
-							$fl_msg = "<h6> CHOOSE YOUR FLIGHT PLAN...!</h6>";
-							echo "<br>";
+							$fl_msg = "<h6>SELECT YOUR FLIGHT PLAN FROM THE AVAILABLE LISTING...!</h6>";
+							
+							echo "<div class='container1'>";
 							echo "<hr>";
 							echo $fl_msg;
 							echo "<hr>";
+							echo "</div>";
+							echo "<input type='text' id='myInput' onkeyup='tableSearchOneway()' placeholder='Search by flight name...'>";
+							echo "<br><br>";
 								
 							//table header here
-							echo "<table id='tbl' class='table-sm'>";
+							echo "<table id='tbl_1' class='table-sm'>";
 								echo "<tr>";
 									echo "<th>FLIGHT ID</th>"; 
 									echo "<th>FLIGHT NAME</th>"; 
-									echo "<th>DEPATURE CITY</th>";
-									echo "<th>DESTINATION CITY</th>";
-									echo "<th>DEPATUREDATE</th>";
-									echo "<th>AMOUNTOFSEATS</th>";
+									echo "<th>DEPATURE</th>";
+									echo "<th>DESTINATION</th>";
+									echo "<th>DEPATURE DATE</th>";
+									echo "<th>SEATS</th>";
 									echo "<th>COST</th>";
 									echo "<th>OPTION</th>";
 									
@@ -299,47 +399,8 @@
 								
 							//Free result set
 							unset($stmt);
+		
 							
-							if($_SERVER["REQUEST_METHOD"] == "POST")
-							{
-								//validates if flight is selected
-								if(isset($_POST['confirmBtn1']))
-								{
-									//Collect and clean flight data here
-									$flightId = cleanInputs($_POST['fID']);
-									$flightName = cleanInputs( $_POST['fName']);
-									$deptCity = cleanInputs( $_POST['departure']);
-									$arrCity = cleanInputs($_POST['destination']);
-									$dDay = cleanInputs($_POST['dDate']);
-									$flightCost  = cleanInputs($_POST['cost']);
-									
-									//verify that all flight infromation is set
-									if($flightId != "" && $flightName != "" && $deptCity != "" && $arrCity != "" && $dDay != "" && $flightCost != "")
-									{
-										//store flight details in session variable for payment
-										$_SESSION['flight_info'] = array(
-											'flightId' => $flightId,
-											'flightName' => $flightName,
-											'departure' => $deptCity,
-											'arrival' => $arrCity,
-											'departDate' => $dDay,
-											'flightCost' => $flightCost,
-											'passenger' => $noOfpassenger,
-										);
-									
-										//direct user to payment page
-										header("location:payment.php");
-										
-									} //end if
-									else
-									{
-										$msg = '<label style="color:red; font-size: 25px; margin: auto;">Choose your flight from flight table...!</label>';
-									} //end else
-									
-								} //end if isset
-								
-							} //end if post
-										
 						} // end if
 						else
 						{
@@ -352,7 +413,7 @@
 					} //end try
 					catch (PDOException $e) 
 					{
-						$msg = "Error : ".$e->getMessage();
+						$msg = '<label style="color:red; font-size: 25px; margin: auto;">Error :' .$e->getMessage(). '</label>';
 					} //end catch
 				}  //end if
 			}	//end if
@@ -361,7 +422,7 @@
 			{
 				if($depCity != "" && $arrCity != "" && $dDate != "" && $rDate != ""  )
 				{
-					//round trip flight search
+					//try database for connection
 					try {
 						//database connection
 						include("connection.php");
@@ -371,47 +432,52 @@
 						//join parameters
 						$string2 = "join flight_cost on flight.flightID = flight_cost.flightID";
 						//where parameters
-						$string3 = "depatureCity='$depCity' and destinationCity='$arrCity' and depatureDate='$dDate' and returnDate ='rDate'";
+						$string3 = "depatureCity='$depCity' and destinationCity='$arrCity' and depatureDate='$dDate' and returnDate='$rDate'";
 								
 						//search database for matchig flights
 						$query = "$string1 from flight $string2 where $string3";					
 						$stmt = $conn->prepare($query);
-						$stmt->bindParam('depatureCity', $$depCity, PDO::PARAM_STR);
+						$stmt->bindParam('depatureCity', $depCity, PDO::PARAM_STR);
 						$stmt->bindValue('destination', $arrCity, PDO::PARAM_STR);
 						$stmt->bindValue('depatureDate', $dDate, PDO::PARAM_STR);
 						$stmt->bindValue('returnDate', $rDate, PDO::PARAM_STR);
 						$stmt->execute();
 						$count = $stmt->rowCount();
 						$row   = $stmt->fetch(PDO::FETCH_ASSOC);
-						  
+
 						//validates if matchig flight was found
 						if($count > 0 && !empty($row)) 
 						{
 							/******************** Display available flights***********************/
-							$fl_msg = "<h6> CHOOSE YOUR FLIGHT PLAN...!</h6>";
-							echo "<br>";
+							$fl_msg = "<h6>SELECT YOUR FLIGHT PLAN FROM THE AVAILABLE LISTING...!</h6>";
+							
+							echo "<div class='container1'>";
 							echo "<hr>";
 							echo $fl_msg;
 							echo "<hr>";
+							echo "</div>";
+							echo "<input type='text' id='myInput' onkeyup='tableSearchRoundTrip()' placeholder='Search by flight name...'>";
+							echo "<br><br>";
 								
 							//table header here
-							echo "<table id='tbl' class='table-sm'>";
+							echo "<table id='tbl_2' class='table-sm'>";
 								echo "<tr>";
 									echo "<th>FLIGHT ID</th>"; 
 									echo "<th>FLIGHT NAME</th>"; 
-									echo "<th>DEPATURE CITY</th>";
-									echo "<th>DESTINATION CITY</th>";
-									echo "<th>DEPATUREDATE</th>";
-									echo "<th>RETURNDATE</th>";
-									echo "<th>AMOUNTOFSEATS</th>";
+									echo "<th>DEPATURE</th>";
+									echo "<th>DESTINATION</th>";
+									echo "<th>DEPARTURE DATE</th>";
+									echo "<th>RETURN DATE</th>";
+									echo "<th>SEATS</th>";
 									echo "<th>COST</th>";
 									echo "<th>OPTION</th>";
-									echo "</tr>";
+									
+								echo "</tr>";
 								
 								while($row = $stmt->fetch(PDO::FETCH_ASSOC)) 
 								{					
 									//out record from database								
-									echo "<tr onclick='javascript:showRoundTrip(this);'>>";
+									echo "<tr onclick='javascript:showRoundTrip(this);'>";
 										echo "<td>" . $row['flightID'] . "</td>";
 										echo "<td>" . $row['flightName'] . "</td>";
 										echo "<td>" . $row['depatureCity']. "</td>";
@@ -427,67 +493,22 @@
 								
 							//Free result set
 							unset($stmt);
+		
 							
-							//display form for flight details
-							$display = 1;
-							
-							if($_SERVER["REQUEST_METHOD"] == "POST")
-							{
-								//validates if flight is selected
-								if(isset($_POST['confirmBtn2']))
-								{
-									//Collect and clean flight data here
-									$flightId = cleanInputs($_POST['fID']);
-									$flightName = cleanInputs( $_POST['fName']);
-									$deptCity = cleanInputs( $_POST['departure']);
-									$arrCity = cleanInputs($_POST['destination']);
-									$dDay = cleanInputs($_POST['dDate']);
-									$rDay = cleanInputs($_POST['returnDate']);
-									$flightCost  = cleanInputs($_POST['cost']);
-									
-									//verify that all flight infromation is set
-									if($flightId != "" && $flightName != "" && $deptCity != "" && $arrCity != "" && $dDay != "" && $rDay != "" && $flightCost != "")
-									{
-										//store flight details in session variable for payment
-										$_SESSION['flight_info'] = array(
-											'tripType' => $tripType, 
-											'flightId' => $flightId,
-											'flightName' => $flightName,
-											'departure' => $deptCity,
-											'arrival' => $arrCity,
-											'departDate' => $dDay,
-											'departDate' => $rDay,
-											'flightCost' => $flightCost,
-											'passenger' => $noOfpassenger,
-										);
-									
-										//direct user to payment page
-										header("location:payment.php");
-										
-									} //end if
-									else
-									{
-										$msg = '<label style="color:red; font-size: 25px; margin: auto;">Choose your flight from flight table...!</label>';
-									} //end else
-									
-								} //end if isset
-								
-							} //end if post
-							
-						} //else if
+						} // end if
 						else
 						{
-							$msg = '<label style="color:red">No flights are available for that date...!</label>';
+							$msg = '<label style="color:red; font-size: 25px; margin: 0px;">No flights are available for those dates...!</label>';
 						} //end else
 										
-							//close database connection
-							$conn = null;
+					//close database connection
+					$conn = null;
+					
 					} //end try
 					catch (PDOException $e) 
 					{
-						$msg = "Error : ".$e->getMessage();
-					} //end catch
-						
+						$msg = '<label style="color:red; font-size: 25px; margin: auto;">Error :' .$e->getMessage(). '</label>';
+					} //end catch						
 				} //end if
 			} //end else if
 			else 
@@ -499,100 +520,107 @@
 			echo $msg;
 		?>
 	</div>
+	<br>
 	
-	<br><br>
 	<!-- oneway form starts here -->
 	<div class="inner-container1" style='display: none;' id="display1">
-	<hr>
-	<h5> CONFIRM FLIGHT DETAILS <h5>
-	<hr>
-	<form action="flight.php" method="POST">
-		<div class="form-row">
-			<div class="col-6">
-				FLIGHT ID <input type="text" id="fID" class="form-control" name="fID">
-			</div>
-			<div class="col-6">
-				FLIGHT NAME <input type="text" id="fName" class="form-control" name="fName">
-			</div>
-		</div>
+		
+		<h5> CONFIRM FLIGHT DETAILS <h5>
+		<hr>
+		<hr>
 		<br>
-		<div class="form-row">
-			<div class="col-6">
-				DEPART FROM <input type="text" id="departure" class="form-control" name="departure">
+		<form action="flight.php" method="POST">
+			<div class="form-row">
+				<div class="col-6">
+					FLIGHT ID <input type="text" id="fID" class="form-control" name="fID">
+				</div>
+				<div class="col-6">
+					FLIGHT NAME <input type="text" id="fName" class="form-control" name="fName">
+				</div>
 			</div>
-			<div class="col-6">
-				DEPART TO <input type="text" id="destination" class="form-control" name="destination">
+			<br>
+			<div class="form-row">
+				<div class="col-6">
+					DEPART FROM <input type="text" id="departure" class="form-control" name="departure">
+				</div>
+				<div class="col-6">
+					DEPART TO <input type="text" id="destination" class="form-control" name="destination">
+				</div>
 			</div>
-		</div>
-		<br>
-		<div class="form-row">
-			<div class="col-6">
-				DEPARTURE DATE <input type="text" id="dDate" class="form-control" name="dDate">
+			<br>
+			<div class="form-row">
+				<div class="col-6">
+					DEPARTURE DATE <input type="text" id="dDate" class="form-control" name="dDate">
+				</div>
+				<div class="col-6">
+					SEATS <input type="text" id="AmountOfSeats" class="form-control" name="AmountOfSeats">
+				</div>
 			</div>
-			<div class="col-6">
-				SEATS <input type="text" id="AmountOfSeats" class="form-control" name="AmountOfSeats">
+			<div class="form-row">
+				<div class="col-6">
+					
+				  COST <input type="text" id="cost" class="form-control" name="cost">
+				</div>
 			</div>
-		</div>
-		<div class="form-row">
-		    <div class="col-6">
-		    	
-		      COST <input type="text" id="cost" class="form-control" name="cost">
-		    </div>
-		</div>
-		<div class="col" align="right" >
-				<button type="submit" class="btn btn-primary" name="confirmBtn1">Confirm</button>
-		</div>
-	</form>
+			<div class="col" align="right" >
+					<button type="submit" class="btn btn-primary" name="confirmBtn1">Confirm</button>
+			</div>
+			<br><br><br><br>
+		</form>
 	</div>
 	
-	<br><br>
 	<!-- round trip form starts here -->
 	<div class="inner-container1" style='display: none;' id="display2">
-	<hr>
-	<h5> CONFIRM FLIGHT DETAILS <h5>
-	<hr>
-	<form action="" method="POST">
-		<div class="form-row">
-			<div class="col-6">
-				FLIGHT ID <input type="text" id="fID" class="form-control" name="fID">
-			</div>
-			<div class="col-6">
-				FLIGHT NAME <input type="text" id="fName" class="form-control" name="fName">
-			</div>
-		</div>
+		<h5> CONFIRM FLIGHT DETAILS <h5>
+		<hr>
+		<hr>
 		<br>
-		<div class="form-row">
-			<div class="col-6">
-				DEPART FROM <input type="text" id="departure" class="form-control" name="departure">
+		<form action="" method="POST">
+			<div class="form-row">
+				<div class="col-6">
+					FLIGHT ID <input type="text" id="fID1" class="form-control" name="fID">
+				</div>
+				<div class="col-6">
+					FLIGHT NAME <input type="text" id="fName1" class="form-control" name="fName">
+				</div>
 			</div>
-			<div class="col-6">
-				DEPART TO <input type="text" id="destination" class="form-control" name="destination">
+			<br>
+			<div class="form-row">
+				<div class="col-6">
+					DEPART FROM <input type="text" id="departure1" class="form-control" name="departure">
+				</div>
+				<div class="col-6">
+					DEPART TO <input type="text" id="destination1" class="form-control" name="destination">
+				</div>
 			</div>
-		</div>
-		<br>
-		<div class="form-row">
-			<div class="col-6">
-				DEPARTURE DATE <input type="text" id="dDate" class="form-control" name="dDate">
+			<br>
+			<div class="form-row">
+				<div class="col-6">
+					DEPARTURE DATE <input type="text" id="dDate1" class="form-control" name="dDate">
+				</div>
+				<div class="col-6">
+					RETURN DATE <input type="text" id="rDate1" class="form-control" name="rDate">
+				</div>
 			</div>
-			<div class="col-6">
-				RETURN DATE <input type="text" id="rDate" class="form-control" name="rDate">
+			<div class="form-row">
+				<div class="col-6">
+					SEATS <input type="text" id="AmountOfSeats1" class="form-control" name="AmountOfSeats">
+				</div>
+				<div class="col-6">
+					
+					COST <input type="text" id="cost1" class="form-control" name="cost">
+				</div>
 			</div>
-		</div>
-		<div class="form-row">
-			<div class="col-6">
-				SEATS <input type="text" id="AmountOfSeats" class="form-control" name="AmountOfSeats">
-			</div>
-		    <div class="col-6">
-		    	
-		      COST <input type="text" id="cost" class="form-control" name="cost">
-		    </div>
-		</div>
-		<div class="col" align="right" >
+			<br><br>
+			<div class="col" align="right" >
 				<button type="submit" class="btn btn-primary" name="confirmBtn2">Confirm</button>
-		</div>
-	</form>
+			</div>
+		</form>
+		<br><br><br><br>
 	</div>
 	
+	
+	<!---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------> 
 	<script language="javascript" type="text/javascript">
 		<!-- capture table valus -->
 		function showOneway(row)
@@ -613,14 +641,14 @@
 		{
 			var x=row.cells;
 			
-			document.getElementById("fID").value = x[0].innerHTML;
-			document.getElementById("fName").value = x[1].innerHTML;
-			document.getElementById("departure").value = x[2].innerHTML;
-			document.getElementById("destination").value = x[3].innerHTML;
-			document.getElementById("dDate").value = x[4].innerHTML;
-			document.getElementById("rDate").value = x[5].innerHTML;
-			document.getElementById("AmountOfSeats").value = x[6].innerHTML;
-			document.getElementById("cost").value = x[7].innerHTML;
+			document.getElementById("fID1").value = x[0].innerHTML;
+			document.getElementById("fName1").value = x[1].innerHTML;
+			document.getElementById("departure1").value = x[2].innerHTML;
+			document.getElementById("destination1").value = x[3].innerHTML;
+			document.getElementById("dDate1").value = x[4].innerHTML;
+			document.getElementById("rDate1").value = x[5].innerHTML;
+			document.getElementById("AmountOfSeats1").value = x[6].innerHTML;
+			document.getElementById("cost1").value = x[7].innerHTML;
 		}
 		
 		//display oneway flight information
@@ -642,11 +670,48 @@
 				x.style.display = "none";
 			}
 		}
+		
+		//table filter search
+		function tableSearchRoundTrip() {
+		  var input, filter, table, tr, td, i;
+		  input = document.getElementById("myInput");
+		  filter = input.value.toUpperCase();
+		  table = document.getElementById("tbl_2");
+		  tr = table.getElementsByTagName("tr");
+		  for (i = 0; i < tr.length; i++) {
+			td = tr[i].getElementsByTagName("td")[1];
+			if (td) {
+			  if (td.innerHTML.toUpperCase().indexOf(filter) > -1) {
+				tr[i].style.display = "";
+			  } else {
+				tr[i].style.display = "none";
+			  }
+			}       
+		  }
+		}
+		
+		//table filter search
+		function tableSearchOneway() {
+		  var input, filter, table, tr, td, i;
+		  input = document.getElementById("myInput");
+		  filter = input.value.toUpperCase();
+		  table = document.getElementById("tbl_1");
+		  tr = table.getElementsByTagName("tr");
+		  for (i = 0; i < tr.length; i++) {
+			td = tr[i].getElementsByTagName("td")[1];
+			if (td) {
+			  if (td.innerHTML.toUpperCase().indexOf(filter) > -1) {
+				tr[i].style.display = "";
+			  } else {
+				tr[i].style.display = "none";
+			  }
+			}       
+		  }
+		}
 	</script>
 	
-	<!---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------> 
 	<!-- jQuery first, then Bootstrap JS. -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://cdn.rawgit.com/twbs/bootstrap/v4-dev/dist/js/bootstrap.js"></script>
 	<!---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------> 
 	
