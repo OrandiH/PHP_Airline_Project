@@ -6,12 +6,6 @@
 	//Define empty booking variables
 	$tripType = $oneway = $deptCity = $arrCity = $dDay = $rDay = $noOfpassenger = "";
 
-	//Define variables for database access
-	$serverName = "localhost";
-	$dbUserName = "root";
-	$dbPassword = "";
-	$dbName = "Airlines_DB";
-
 	//Variables to store hashed values
 	$hash_password = "";
 	$hash_creditNum = "";
@@ -68,84 +62,7 @@
 
 
 	if($_SERVER["REQUEST_METHOD"] == "POST"){
-		if(isset($_POST['registerBtn'])){
-			//Collect form data here
-			$userFirstName = $_POST['userFirstName'];
-			$userLastName = $_POST['userLastName'];
-			$userEmail = $_POST['userEmail'];
-			$userPassword = $_POST['userPassword'];
-			$userAge = $_POST['userAge'];
-			$userAddress = $_POST['userAddress'];
-			$userCCNum = $_POST['userCCNum'];
-
-			//First level of sanitation here
-			$cleanFirstName = cleanInputs($userFirstName);
-			$cleanLastName = cleanInputs($userLastName);
-			$cleanEmail = cleanInputs($userEmail);
-			$cleanPassword = cleanInputs($userPassword);
-			$cleanAge = cleanInputs($userAge);
-			$cleanAddress = cleanInputs($userAddress);
-			$cleanCCNum = cleanInputs($userCCNum);
-
-			$profile_pic = ""; //to be used for bonus marks
-			$passwdErr = verifyPasswordLength($cleanPassword);
-
-			$hash_creditNum = md5($cleanCCNum);
-			$hash_password = password_hash($cleanPassword,PASSWORD_DEFAULT);
-
-				//Validate username
-				if(!preg_match("/^([A-Z]{1})([A-Za-z-])?/", $cleanFirstName))
-				{
-					$fNameErr = "Firstname is invalid";
-					$errFlag = 1;
-				}
-				//Validate full name
-				if(!preg_match("/^([A-Z]{1})([A-Za-z-])?/", $cleanLastName))
-				{
-					$LNameErr = "Lastname is invalid";
-					$errFlag = 1;
-				}
-				//Validate email
-				if(!filter_var($cleanEmail,FILTER_VALIDATE_EMAIL))
-				{
-					$emailErr = "Email is invalid";
-					$errFlag = 1;
-				}
-				//Validate address
-				if(!preg_match("/^[0-9a-zA-Z,. ]+/", $cleanAddress))
-				{
-					$addressErr = "Address is invalid";
-					$errFlag = 1;
-				}
-				//Validate age
-				if(!filter_var($cleanAge,FILTER_VALIDATE_INT))
-				{
-					$ageErr = "Age is invalid";
-					$errFlag = 1;
-				}
-				//Validate credit card num
-				if(!preg_match("/^(?:4[0-9]{12}(?:[0-9]{3})?",$cleanCCNum)){
-					$ccNumErr = "Credit card isn't valid";
-					$errFlag = 1;
-				}
-
-				//Pass in validated information
-			$Val = processFormData($cleanFirstName,$cleanLastName,$cleanPassword
-			,$cleanEmail,$cleanAge,$cleanAddress,$cleanCCNum,$errFlag);
-
-			//Connect to DB and enter data
-			
-
-				if($Val == 1){
-					echo '<script>$("#registerModal").modal("show");</script>';
-				}else{
-					echo '<script>$("#registerModal").modal("hide");</script>';
-				}
-
-
-		}
-
-}
+	}
 
 
 		/*
@@ -306,7 +223,7 @@
 		  <div class="modal-body">
 			<!-- form starts here -->
 			<span class="alert alert-danger display-error" style="display: none"></span>
-			<form role="form" id="registerForm">
+			<form role="form" class="registerForm">
 			<div class="form-row">
 				<div class="col-6">
 				</div>
@@ -449,7 +366,7 @@
 <!--Script for validation-->
 <script type="text/javascript">
   $(document).ready(function() {
-      $('#submit').click(function(e){
+      $('.registerForm').submit(function(e){
         e.preventDefault();
 				//Variables for data to be sent for validation
         var firstname = $("#firstName").val();
@@ -459,16 +376,19 @@
 				var cardNum = $("#cardNum").val();
 				var age = $("#age").val();
         var address = $("#address").val();
-				//AJAX call
+				//AJAX call 
         $.ajax({
             type: "POST",
             url: "/PHP_Airline_Project/registerDataProcess.php",
 						dataType: "json",
-            data: {"firstname":firstname, "lastname":lastname,"email":email,"password":password,"cardnum":cardNum, "age":age,"address":address},
+            data: {firstname:firstname, lastname:lastname,email:email,password:password,cardnum:cardNum, age:age,address:address},
             success : function(data){
                 if (data.code == "200"){
                     alert("Success: Record added!");
 										$("#registerModal").modal("hide");
+										$(".registerForm")[0].reset();
+										$(".display-error").css("display","none");
+										alert("" + data.msg);
                 } else {
                     $(".display-error").html("<ul>"+data.msg+"</ul>");
                     $(".display-error").css("display","block");

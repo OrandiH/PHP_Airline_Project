@@ -1,100 +1,148 @@
 <?php
-
+include('db.php');
+//This file receives data from index page via AJAX
 //Define variables
 $errorMSG = "";
 $userFirstName = $_POST['firstname'];
 $userLastName = $_POST['lastname'];
 $userEmail = $_POST['email'];
-$userPassword = $_POST['password'];
+$userPassword = $_POST['password']; 
 $userAge = $_POST['age'];
 $userAddress = $_POST['address'];
 $userCCNum = $_POST['cardnum'];
 
 
+//Function to clean inputs received from form
+function cleanInputs($value){
+    $value = trim($value);
+    $value = stripcslashes($value);
+    $value = htmlspecialchars($value);
+    return $value;
+}	
+
+//Variables to store hashed values
+$hash_password = "";
+$hash_creditNum = "";
+
+//First level of sanitation here
+$cleanFirstName = cleanInputs($userFirstName);
+$cleanLastName = cleanInputs($userLastName);
+$cleanEmail = cleanInputs($userEmail);
+$cleanPassword = cleanInputs($userPassword);
+$cleanAge = cleanInputs($userAge);
+$cleanAddress = cleanInputs($userAddress);
+$cleanCCNum = cleanInputs($userCCNum);
+
+//Hash values
+$hash_creditNum = md5($cleanCCNum);
+$hash_password = password_hash($cleanPassword,PASSWORD_DEFAULT);
 /* FIRST NAME */
-if (empty($userFirstName)) {
+if (empty($cleanFirstName)) {
     $errorMSG = "<li>Firstname is required</<li>";
 }
-if(!preg_match("/^([A-Z]{1})([A-Za-z-])?/", $userFirstName)) {
+if(!preg_match("/^([A-Z]{1})([A-Za-z-])?/", $cleanFirstName)) {
     $errorMSG = "<li>Invalid first name</li>";
 } else{
-    $firstName = $userFirstName;
+    $firstName = $cleanFirstName;
 }
 
 /* LAST NAME */
-if(empty($userLastName)){
+if(empty($cleanLastName)){
     $errorMSG .= "<li>Lastname is required</li>";
 }
-if(!preg_match("/^([A-Z]{1})([A-Za-z-])?/", $userLastName)){
+if(!preg_match("/^([A-Z]{1})([A-Za-z-])?/", $cleanLastName)){
     $errorMSG .= "<li>Invalid lastname</li>";
 }else{
-    $lastname = $userLastName;
+    $lastname = $cleanLastName;
 }
 
-
 /* EMAIL */
-if (empty($userEmail)) {
+if (empty($cleanEmail)) {
     $errorMSG .= "<li>Email is required</li>";
 } 
 
-if(!filter_var($userEmail, FILTER_VALIDATE_EMAIL)) {
+if(!filter_var($cleanEmail, FILTER_VALIDATE_EMAIL)) {
     $errorMSG .= "<li>Invalid email format</li>";
 }else {
-    $email = $userEmail;
+    $email = $cleanEmail;
 }
 
 /* PASSWORD */
-if(empty($userPassword)){
+if(empty($cleanPassword)){
     $errorMSG .= "<li>Password is required</li>";
 } 
-else if(strlen($userPassword) < 8){
+else if(strlen($cleanPassword) < 8){
     $errorMSG .= "<li>Password is too short,password must be 8 characters</li>";
-} else if (strlen($userPassword) > 8) {
+} else if (strlen($cleanPassword) > 8) {
     $errorMSG .= "<li>Password is too long,password must be 8 characters at least</li>";
 }else{
-    $password = $userPassword;
+    $password = $cleanPassword;
 }
 
 /* AGE */
-if(empty($userAge)){
+if(empty($cleanAge)){
     $errorMSG .= "<li>Age is required</li>";
 } 
 
-if(!filter_var($userAge,FILTER_VALIDATE_INT)){
+if(!filter_var($cleanAge,FILTER_VALIDATE_INT)){
     $errorMSG .= "<li>Age is invalid</li>";
 }else{
-    $age = $userAge;
+    $age = $cleanAge;
 }
 
 
 /* ADDRESS */
-if (empty($userAddress)) {
+if (empty($cleanAddress)) {
     $errorMSG .= "<li>Address is required</li>";
 } 
-if(!preg_match("/^[0-9a-zA-Z,. ]+/", $userAddress)){
+if(!preg_match("/^[0-9a-zA-Z,. ]+/", $cleanAddress)){
     $errorMSG .= "<li>Address is invalid</li>";
 }else{
-    $address = $userAddress;
+    $address = $cleanAddress;
 }
 
 
 /* CREDIT CARD */
-if (empty($userCCNum)) {
+if (empty($cleanCCNum)) {
     $errorMSG .= "<li>Credit card is required</li>";
 } 
-if (!preg_match("/^(?:4[0-9]{12}(?:[0-9]{3})?)/",$userCCNum)){
-    $errorMSG .= "Credit card isn't valid";
+if (!preg_match("/^(?:4[0-9]{12}(?:[0-9]{3})?)/",$cleanCCNum)){
+    $errorMSG .= "<li>Credit card isn't valid</li>";
 }else{
-    $ccNum = $userCCNum;
+    $ccNum = $cleanCCNum;
 }
 
 
 if(empty($errorMSG)){
-    $msg = "First Name: ".$firstName. ", Last Name: ".$lastname." Email: ".$email.", Password: ".$password.", Age:".
-        $age." Address: ".$address." Credit card: ".$ccNum;
-	echo json_encode(['code'=>200, 'msg'=>$msg]);
-	exit;
+    $stmt = $DBcon->prepare("INSERT INTO customer (userName,firstName,lastName,age,mailAddress,credit_card_Num, password) VALUES 
+    (:email,:firstName,:lastname,:age,:address,:hash_creditNum, :password)");
+
+    $stmt->bindparam(':email', $email);
+    $stmt->bindparam(':firstName', $firstName);
+    $stmt->bindparam(':lastname', $lastname);
+    $stmt->bindparam(':age', $age);
+    $stmt->bindparam(':address', $address);
+    $stmt->bindparam(':hash_creditNum', $hash_creditNum);
+    $stmt->bindparam(':password', $hash_password);
+
+    if($stmt->execute()){
+        $res = "Data inserted successfully";
+        echo json_encode(['code'=>200, 'msg'=>$res]);
+    }
+    else{
+        $res = "Error";
+        echo json_encode(['code'=>200, 'msg'=>$res]);
+    }
+
+
+    // $msg = "First Name: ".$firstName. ", Last Name: ".$lastname." Email: ".$email.", Password: ".$password.", Age:".
+    // $age." Address: ".$address." Credit card: ".$ccNum;
+    // echo json_encode(['code'=>200, 'msg'=>$msg]);
+    exit;
 }
-    echo json_encode(['code'=>404, 'msg'=>$errorMSG]);
+
+echo json_encode(['code'=>404, 'msg'=>$errorMSG]);
+
+
     
 ?>

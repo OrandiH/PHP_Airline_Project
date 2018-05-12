@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Apr 25, 2018 at 05:37 AM
+-- Generation Time: May 12, 2018 at 11:58 PM
 -- Server version: 10.1.31-MariaDB
 -- PHP Version: 7.0.28
 
@@ -21,8 +21,6 @@ SET time_zone = "+00:00";
 --
 -- Database: `Airlines_DB`
 --
-CREATE DATABASE IF NOT EXISTS `Airlines_DB` DEFAULT CHARACTER SET latin1 COLLATE latin1_swedish_ci;
-USE `Airlines_DB`;
 
 -- --------------------------------------------------------
 
@@ -51,12 +49,10 @@ INSERT INTO `admin` (`username`, `password`, `firstname`, `lastname`, `age`) VAL
 -- Table structure for table `booked_flights`
 --
 
-DROP TABLE IF EXISTS `booked_flights`;
-CREATE TABLE IF NOT EXISTS `booked_flights` (
-  `BookingID` int(11) NOT NULL AUTO_INCREMENT,
+CREATE TABLE `booked_flights` (
+  `BookingID` int(11) NOT NULL,
   `flightID` varchar(30) DEFAULT NULL,
-  `userName` int(50) NOT NULL,
-  PRIMARY KEY (`BookingID`)
+  `userName` int(50) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
@@ -72,19 +68,19 @@ CREATE TABLE `customer` (
   `age` int(11) NOT NULL,
   `mailAddress` varchar(100) NOT NULL,
   `credit_card_Num` varchar(150) NOT NULL,
-  `profile_pic` varchar(150) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `customer_login`
---
-
-CREATE TABLE `customer_login` (
-  `userName` varchar(50) NOT NULL,
   `password` varchar(150) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `customer`
+--
+
+INSERT INTO `customer` (`userName`, `firstName`, `lastName`, `age`, `mailAddress`, `credit_card_Num`, `password`) VALUES
+('idnarosirrah@gmail.com', 'Orandi', 'Harris', 23, '50 Highland Pike Road, 3', '787d941078d5f393ebf68b6026a139a7', '$2y$10$FySScbc71fpAlIzQ2f47J.lDhb0YaNp9xBe25.q4pWlKjSoj.oPDy'),
+('jbrown@gmail.com', 'John', 'Brown', 24, '237 Old Hope Road,Kingston', 'fc4567a7c609b4e6e264e97079386963', '$2y$10$8qCJvZzM048wAC5Hh28.1.M1ZNLqAxd6T0Byu87Wkmu28qLUmhrVm'),
+('sueJames@hotmail.com', 'Susan', 'James', 32, '62 Lakeland Drive,Greendale', 'a1173cc1f3125ba4eba451e71a363257', '$2y$10$ZXMgSVz.CmMNZEAlAyup4ewbukZNwIS8HtanQOS9R36iu93Y/RdYW'),
+('wsmith@gmail.com', 'Will', 'Smith', 22, '94 Old Hope Road,Kingston', '9b8a421bff5f30d20f118185eb6e4523', '$2y$10$gJPcVacAdi6s7Yn8Y4QuWOKLGp375.UsVu9k3MvaACHcRxIJbC3BG'),
+('tbrown@hotmail.com', 'Tanya', 'Brown', 32, '240 Old Hope Road,Kingston', '6e73a1d9fd95715c927c26822445d8d1', '$2y$10$.zk4Ckk3rpUpUrqFqKMwZ.NwMcbhAwhgnGyfdqKFWTFtpH2GKN2nu');
 
 -- --------------------------------------------------------
 
@@ -107,6 +103,7 @@ CREATE TABLE `customer_payment` (
 CREATE TABLE `flight` (
   `flightID` varchar(30) NOT NULL,
   `flightName` varchar(30) NOT NULL,
+  `airlineName` varchar(60) NOT NULL,
   `depatureCity` varchar(30) NOT NULL,
   `destinationCity` varchar(30) NOT NULL,
   `depatureDate` date NOT NULL,
@@ -174,36 +171,6 @@ ALTER TABLE `booked_flights`
   ADD PRIMARY KEY (`BookingID`);
 
 --
--- Indexes for table `customer`
---
-ALTER TABLE `customer`
-  ADD PRIMARY KEY (`userName`);
-
---
--- Indexes for table `customer_login`
---
-ALTER TABLE `customer_login`
-  ADD PRIMARY KEY (`userName`);
-
---
--- Indexes for table `customer_payment`
---
-ALTER TABLE `customer_payment`
-  ADD PRIMARY KEY (`userName`);
-
---
--- Indexes for table `flight`
---
-ALTER TABLE `flight`
-  ADD PRIMARY KEY (`flightID`);
-
---
--- Indexes for table `flight_cost`
---
-ALTER TABLE `flight_cost`
-  ADD PRIMARY KEY (`flightID`);
-
---
 -- AUTO_INCREMENT for dumped tables
 --
 
@@ -212,28 +179,6 @@ ALTER TABLE `flight_cost`
 --
 ALTER TABLE `booked_flights`
   MODIFY `BookingID` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- Constraints for dumped tables
---
-
---
--- Constraints for table `customer_login`
---
-ALTER TABLE `customer_login`
-  ADD CONSTRAINT `FK_Username` FOREIGN KEY (`userName`) REFERENCES `customer` (`userName`);
-
---
--- Constraints for table `customer_payment`
---
-ALTER TABLE `customer_payment`
-  ADD CONSTRAINT `FK_Username_Payment` FOREIGN KEY (`userName`) REFERENCES `customer` (`userName`);
-
---
--- Constraints for table `flight_cost`
---
-ALTER TABLE `flight_cost`
-  ADD CONSTRAINT `FK_FlightID_Cost` FOREIGN KEY (`flightID`) REFERENCES `flight` (`flightID`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
