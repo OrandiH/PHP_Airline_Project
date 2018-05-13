@@ -23,11 +23,12 @@
 		      <div class="row">
 		        <div class="col">
 		        <form class="form-signin" action="adminlogin.php" method= "POST">
-		            <input type="text" class="form-control mb-2" placeholder="UserID" name="adminId" required autofocus>
+		            <input type="email" class="form-control mb-2" placeholder="UserID" name="adminId" required autofocus>
 		            <input type="password" class="form-control mb-2" placeholder="Password" name="adminPassword" required>
 		            <button class="btn btn-lg btn-primary btn-block mb-1" type="submit">Log in</button>
 		        </label>
 		        </form>
+				<a href="admin_add.php">Create New Admin</a>	
 		        </div>
 		      </div>
 		    </div>
@@ -40,6 +41,7 @@
 </html>
 
 <?php
+session_start();
 	
 	function cleanInputs($value){
 
@@ -57,8 +59,9 @@
 		$adminPassword = $_POST['adminPassword'];
 
 		$cleanID = cleanInputs($adminId);
-		$cleanPassword = cleanInputs($adminPassword);
 
+		$cleanPassword = password_hash($adminPassword, PASSWORD_BCRYPT);
+	
 		$serverName = "localhost";
 		$dbUserName = "root";
 		$dbPassword = "";
@@ -74,29 +77,44 @@
 
 			//Set SQL statement using named parameters
 
-			$sql = "SELECT * FROM admin WHERE username = :adminId && password = :adminPassword";
+			$sql = "SELECT * FROM admin WHERE username = :adminId";
 
 			$stmt = $pdo->prepare($sql);
-			$stmt->execute([':adminId' => $adminId,':adminPassword'=> $adminPassword]);
+			$stmt->execute([':adminId' => $cleanID]);
 
 			$admin = $stmt->fetchAll();
-			$userCount = $stmt->rowCount();
+			$pass = $admin[0]-> password;
 
-			if($userCount == 1)
-			{
+			if(password_verify($adminPassword, $pass)){
+				$userCount = $stmt->rowCount();
+				if($userCount == 1)
+			    {
+				$user = $admin[0]-> username;
+				$_SESSION['user']= $user;
 				$_SESSION['admin'] = (array) $admin;
 				echo '<br>';
-				echo '<div class="alert alert-success text-center col-4" style="margin: auto" role="alert">
+				echo '<div class="alert alert-success text-center col-4" style="margin: auto;" role="alert">
 				  <strong>Login Successfull</strong>
 				</div>';
 				header("Refresh: 1; url=adminDashboard.php");
-			}
+			    }
 			else{
-				header("Refresh:2; url=login.php");
-				echo "<h2>Invalid userID or password</h2>";
+				echo '<br>';
+				echo '<div class="alert alert-warning text-center col-4" style="margin: auto;" role="alert">
+				<strong>Invalid userID or password</strong>
+			  	</div>';
+				//header("Refresh:3; url=adminlogin.php");
 			}
+		}else
+		{
+			echo '<br>';
+			echo '<div class="alert alert-warning text-center col-4" style="margin: auto;" role="alert">
+			<strong>Invalid userID or password</strong>
+		  	</div>';
+			//header("Refresh:3; url=adminlogin.php");
+		}
 
-		}catch(PDOException $e){
+	}catch(PDOException $e){
 		 	echo $sql. "<br>" . $e->getMessage();
 		}
 		$stmt = null;//Close connection to db
