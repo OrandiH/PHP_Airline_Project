@@ -308,6 +308,9 @@
 	        </button>
 	        <div class="collapse navbar-collapse" id="exCollapsingNavbar">
 	            <ul class="nav navbar-nav flex-row justify-content-between ml-auto">
+                    <li class="nav-item" style="margin-right: 5px;">
+                    <button type="button" class="btn btn-outline-primary" onClick="document.location.href='updateadmin.php'">Update Admin Info</button>
+                    </li>
 	                <li class="nav-item">
 	                    <button type="button" class="btn btn-outline-primary" onClick="document.location.href='logout.php'">Log Out</button>
 	                </li>
