@@ -10,7 +10,7 @@ $user= $_GET['user'];
     $servername = "localhost";
 	$dbUsername = "root";
 	$dbPassword = "";
-    $dbName = "airlines_db";
+    $dbName = "Airlines_DB";
 
     
 	$pdo = new PDO("mysql:host=$servername;dbname=$dbName",$dbUsername,$dbPassword);

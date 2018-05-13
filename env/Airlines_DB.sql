@@ -23,6 +23,7 @@ SET time_zone = "+00:00";
 --
 
 -- --------------------------------------------------------
+  CREATE Database Airlines_DB;
 
 --
 -- Table structure for table `admin`
