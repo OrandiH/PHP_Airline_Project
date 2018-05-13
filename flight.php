@@ -620,9 +620,8 @@
 	</div>
 	
 	
-	<!---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------> 
-	<script language="javascript" type="text/javascript">
-		<!-- capture table valus -->
+<!-- <script language="javascript" type="text/javascript">
+		
 		function showOneway(row)
 		{
 			var x=row.cells;
@@ -636,7 +635,7 @@
 			document.getElementById("cost").value = x[6].innerHTML;
 		}
 		
-		<!-- capture table valus -->
+		
 		function showRoundTrip(row)
 		{
 			var x=row.cells;
@@ -708,12 +707,13 @@
 			}       
 		  }
 		}
-	</script>
+	</script>-->
 	
+
 	<!-- jQuery first, then Bootstrap JS. -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://cdn.rawgit.com/twbs/bootstrap/v4-dev/dist/js/bootstrap.js"></script>
-	<!---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------> 
+	
 	
 </body>
 </html>

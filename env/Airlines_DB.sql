@@ -23,7 +23,8 @@ SET time_zone = "+00:00";
 --
 
 -- --------------------------------------------------------
-
+CREATE DATABASE IF NOT EXISTS `Airlines_DB` DEFAULT CHARACTER SET latin1 COLLATE latin1_swedish_ci;
+USE `Airlines_DB`;
 --
 -- Table structure for table `admin`
 --

@@ -35,7 +35,7 @@ $cleanCCNum = cleanInputs($userCCNum);
 
 //Hash values
 $hash_creditNum = md5($cleanCCNum);
-$hash_password = password_hash($cleanPassword,PASSWORD_DEFAULT);
+$hash_password = md5($cleanPassword);
 /* FIRST NAME */
 if (empty($cleanFirstName)) {
     $errorMSG = "<li>Firstname is required</<li>";
@@ -134,10 +134,6 @@ if(empty($errorMSG)){
         echo json_encode(['code'=>200, 'msg'=>$res]);
     }
 
-
-    // $msg = "First Name: ".$firstName. ", Last Name: ".$lastname." Email: ".$email.", Password: ".$password.", Age:".
-    // $age." Address: ".$address." Credit card: ".$ccNum;
-    // echo json_encode(['code'=>200, 'msg'=>$msg]);
     exit;
 }
 

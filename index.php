@@ -1,14 +1,9 @@
 <?php
+	include('db.php');
 	session_start();
-
-	$errFlag = 0; //This is needed to identify errors
 	
 	//Define empty booking variables
 	$tripType = $oneway = $deptCity = $arrCity = $dDay = $rDay = $noOfpassenger = "";
-
-	//Variables to store hashed values
-	$hash_password = "";
-	$hash_creditNum = "";
 
 	//Function to clean inputs received from form
 	function cleanInputs($value){
@@ -18,6 +13,8 @@
 		$value = htmlspecialchars($value);
 		return $value;
 	}	
+
+	
 
 	function processFormData($value1,$value2,$value3,$value4,$value5,$value6,$value7,$errFlag){
 		$response= 0;//Initializing $response variable
@@ -41,81 +38,64 @@
 				return $response;//Return response value
 			}
 	}
-	//Verify length of password user submits
-	function verifyPasswordLength($value)
-	{
-		if(strlen($value) < 8)
-		{
-			$passwdErr = "Password is too short,password must be 8 characters";
-			$errFlag = 1;
-		}
-		else if (strlen($value) > 8) 
-		 {
-			$passwdErr = "Password is too long,password must be 8 characters at least";
-			$errFlag = 1;
-		}
-		else{
-			$passwdErr = "";
-		}
-		return $passwdErr;
-	}
+	
 
 
 	if($_SERVER["REQUEST_METHOD"] == "POST"){
+		if(isset($_POST['loginBtn']))
+			{
+						$userName = $_POST['username'];
+						$password = $_POST['password'];
+						$hash_password = md5($password);
+						//Define variables for database access
+						$DB_host = "localhost";
+						$DB_user = "root";
+						$DB_pass = "";
+						$DB_name = "Airlines_DB";
+
+						try
+						{
+								//Set SQL statement using named parameters
+								$stmt = $DBcon->prepare("SELECT * FROM customer WHERE userName = :username && password = :password");
+								$stmt->bindparam(':username', $userName);
+								$stmt->bindparam(':password', $hash_password);
+								$stmt->execute();//This is key
+
+								$users = $stmt->fetchAll();
+								$userCount = $stmt->rowCount();
+
+								if($userCount == 1)
+								{
+										$_SESSION['users'] = (array) $users;
+										echo "<script src='https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js'></script>";
+										echo "<script type='text/javascript' src='profile.js'></script>";
+									//	header("Refresh: 4; url=flight.php");
+								}
+								else{
+										echo "<script>alert('Invalid userID or password!');</script>";
+									  header("Refresh:3; url=index.php");
+										
+								}
+						}
+						catch(PDOException $e)
+						{
+								echo "ERROR : ".$e->getMessage();
+						}
+						$stmt = null;//Close connection to db
+ 						$DBcon = null;
+			}
+
 	}
 
 
-		/*
-		if(isset($_POST['registerBtn'])){
-			echo "<h1>Test</h1>";
+
 			
 
 		
 
 			
-			try{
-				//establish database connection
-						
-				$conn = new PDO("mysql:host=$serverName;dbname=$dbName",$dbUserName,$dbPassword);
-				// set the PDO error mode to exception
-				$conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-				//set the default PDO fetch mode to object
-				$conn->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_OBJ);
-	
-
-		
-
 			
-				//Set queries for inserting into DB
-				$sql = "INSERT INTO customer (userName,firstName,lastName,age,mailAddress,credit_card_Num, profile_pic) VALUES 
-				('$cleanEmail','$cleanFirstName','$cleanLastName','$cleanAge','$cleanAddress','$hash_creditNum', '$profilePic')";
-
-				$sql2 = "INSERT INTO customer_login (userName,password) VALUES 
-				('$cleanEmail','$hash_password')";
-
-				//Execute statements
-				$conn->exec($sql);
-				$conn->exec($sql2);
-				
-				// Free result set
-				unset($sql);
-				unset($sq2);
-				
-			
-
-				//header('Refresh: 2; URL=index.php');
-
-			}catch(PDOException $e){
-				echo $sql. "<br>" . $e->getMessage();
-			}
-				$conn = null;//Close connection to db
-			} //end if
-			
-			if(isset($_POST['loginBtn']))
-			{
-				//direct user to flight page
-				header("location:flight.php");
-			}
+			/*
 			else if(isset($_POST['bookBtn'])){
 				//Collect and clean booking data here
 				$tripType = cleanInputs($_POST['tripType']);
@@ -164,6 +144,7 @@
 	<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
 
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	
 
 </head>
 <body background="assets/images/home.jpg">
@@ -178,15 +159,16 @@
 					<ul class="nav navbar-nav flex-row justify-content-between ml-auto">
 						<li class="nav-item"><a href="#" class="nav-link">Already a member?</a></li>
 						<li class="dropdown order-1">
+							<button type="button" class="btn btn-outline-primary profile" style="display:none"><a href="profile.php">Profile</a></button>
 							<button type="button" id="dropdownMenu1" data-toggle="dropdown" class="btn btn-outline-primary dropdown-toggle ">Login/Register <span class="caret"></span></button>
 							<ul class="dropdown-menu dropdown-menu-right mt-1 transparent">
 							  <li class="p-3">
-									<form class="form" role="form" action="" method="POST">
+									<form class="form" role="form" action="index.php" method="POST">
 										<div class="form-group">
-											<input id="emailInput" placeholder="Email" class="form-control form-control-sm" type="text" required="">
+											<input name="username" placeholder="Username" class="form-control form-control-sm" type="text" required="">
 										</div>
 										<div class="form-group">
-											<input id="passwordInput" placeholder="Password" class="form-control form-control-sm" type="text" required="">
+											<input name="password" placeholder="Password" class="form-control form-control-sm" type="password" required="">
 										</div>
 										<div class="form-check">
 										<input type="checkbox" class="form-check-input" id="exampleCheck1">
