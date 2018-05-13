@@ -160,6 +160,7 @@
 						<li class="nav-item"><a href="#" class="nav-link">Already a member?</a></li>
 						<li class="dropdown order-1">
 							<button type="button" class="btn btn-outline-primary profile" style="display:none"><a href="profile.php">Profile</a></button>
+							<button type="button" class="btn btn-outline-primary logout" style="display:none"><a href="logoutCustomer.php">Logout</a></button>
 							<button type="button" id="dropdownMenu1" data-toggle="dropdown" class="btn btn-outline-primary dropdown-toggle ">Login/Register <span class="caret"></span></button>
 							<ul class="dropdown-menu dropdown-menu-right mt-1 transparent">
 							  <li class="p-3">
