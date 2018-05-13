@@ -1,5 +1,6 @@
 
     $(document).ready(function() {
-        $('.profile').css('display','block');
+        $('.profile').css('display','inline-block');
+        $('.logout').css('display','inline-block');
     });
 
