@@ -4,6 +4,7 @@
 	
 	//Define empty booking variables
 	$tripType = $oneway = $deptCity = $arrCity = $dDay = $rDay = $noOfpassenger = "";
+	$firstname = "";
 
 	//Function to clean inputs received from form
 	function cleanInputs($value){
@@ -39,7 +40,7 @@
 			}
 	}
 	
-
+	
 
 	if($_SERVER["REQUEST_METHOD"] == "POST"){
 		if(isset($_POST['loginBtn']))
@@ -67,6 +68,7 @@
 								if($userCount == 1)
 								{
 										$_SESSION['users'] = (array) $users;
+										$firstname = $_SESSION['users'][0]['firstName'];
 										echo "<script src='https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js'></script>";
 										echo "<script type='text/javascript' src='profile.js'></script>";
 									//	header("Refresh: 4; url=flight.php");
@@ -76,6 +78,12 @@
 									  header("Refresh:3; url=index.php");
 										
 								}
+
+								if(isset($_POST['rememberMe'])){
+									$hour = time() + 3600 * 24 * 30;
+									setcookie('username', $userName, $hour);
+									setcookie('password', $password, $hour);
+								}
 						}
 						catch(PDOException $e)
 						{
@@ -84,6 +92,7 @@
 						$stmt = null;//Close connection to db
  						$DBcon = null;
 			}
+			
 
 	}
 
@@ -151,7 +160,7 @@
 	<div class="container-fluid">
 		<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top" role="navigation">
 			<div class="container">
-				<a class="navbar-brand" href="#">Booking</a>
+				<a class="navbar-brand" href="#">Booking&nbsp;&nbsp;<?php echo " Welcome ".$firstname;?></a>
 				<button class="navbar-toggler border-0" type="button" data-toggle="collapse" data-target="#exCollapsingNavbar">
 					&#9776;
 				</button>
@@ -159,7 +168,7 @@
 					<ul class="nav navbar-nav flex-row justify-content-between ml-auto">
 						<li class="nav-item"><a href="#" class="nav-link">Already a member?</a></li>
 						<li class="dropdown order-1">
-							<button type="button" class="btn btn-outline-primary profile" style="display:none"><a href="profile.php">Profile</a></button>
+							<button type="button" class="btn btn-outline-primary profile" style="display:none"><a href="profile.php" target="_blank">Profile</a></button>
 							<button type="button" class="btn btn-outline-primary logout" style="display:none"><a href="logoutCustomer.php">Logout</a></button>
 							<button type="button" id="dropdownMenu1" data-toggle="dropdown" class="btn btn-outline-primary dropdown-toggle ">Login/Register <span class="caret"></span></button>
 							<ul class="dropdown-menu dropdown-menu-right mt-1 transparent">
@@ -172,7 +181,7 @@
 											<input name="password" placeholder="Password" class="form-control form-control-sm" type="password" required="">
 										</div>
 										<div class="form-check">
-										<input type="checkbox" class="form-check-input" id="exampleCheck1">
+										<input type="checkbox" class="form-check-input" name="rememberMe">
 										<label class="form-check-label" for="exampleCheck1">Remember Me</label>
 									  </div>
 									  <br>

@@ -136,7 +136,7 @@
 		<p>Age: <input type="text" name="age" placeholder="<?php echo $_SESSION['users'][0]['age'];?>" /></p><br/>
 		<button type="submit" name="update">Update</button> 
 		<button type= "submit" name="delete">Delete</button><br/>
-        <button><a href="changeUserPassword.php">Change Password</a></button>
+        <button><a href="changeUserPassword.php" target="_blank">Change Password</a></button></br/>
 	</form>
 	</fieldset>
 </body>

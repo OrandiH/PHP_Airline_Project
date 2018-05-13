@@ -1,18 +1,18 @@
 <!doctype html>
 <html>
 	<head>
-		<title>Customer</title>
+		<title>Customer - Change Password</title>
 	</head>
 	<body>
         <fieldset>
         <legend><h2>Change Password</h2></legend>
 		<form method = "POST" action = "changeUserPassword.php" >
 			<p>Old Password</p>
-			<input type="password" name="Password" placeholder="••••••">
+			<input type="password" name="Password" placeholder="Old password">
 			<p>New Password</p>
-			<input type="password" name="Password1" placeholder="••••••">
+			<input type="password" name="Password1" placeholder="New password">
 			<p>Confirm New Password</p>
-			<input type="password" name="Password2" placeholder="••••••"><br/><br/>
+			<input type="password" name="Password2" placeholder="Confirm new password"><br/><br/>
 			<input type="submit" name="submitBtn" value="CHANGE PASSWORD">
 		</form>
         </fieldset>
@@ -57,6 +57,7 @@ if($_SERVER["REQUEST_METHOD"]=="POST")
                 $stmt->bindparam(':Password', $hash_Password);
                 $stmt->execute();
                 echo "<h3> PASSWORD SUCCESFULLY CHANGE </h3>";
+                header("Refresh:3; url=index.php");
                 
                 }
                 else{
