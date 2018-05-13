@@ -62,7 +62,7 @@
 		$serverName = "localhost";
 		$dbUserName = "root";
 		$dbPassword = "";
-		$dbName = "Airlines_db";
+		$dbName = "Airlines_DB";
 
 		try{
 			$pdo = new PDO("mysql:host=$serverName;dbname=$dbName",$dbUserName,$dbPassword);
@@ -85,7 +85,8 @@
 			if($userCount == 1)
 			{
 				$_SESSION['admin'] = (array) $admin;
-				echo '<div class="alert alert-success text-center col-4" role="alert">
+				echo '<br>';
+				echo '<div class="alert alert-success text-center col-4" style="margin: auto" role="alert">
 				  <strong>Login Successfull</strong>
 				</div>';
 				header("Refresh: 1; url=adminDashboard.php");

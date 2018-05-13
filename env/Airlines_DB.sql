@@ -77,11 +77,9 @@ CREATE TABLE `customer` (
 --
 
 INSERT INTO `customer` (`userName`, `firstName`, `lastName`, `age`, `mailAddress`, `credit_card_Num`, `password`) VALUES
-('idnarosirrah@gmail.com', 'Orandi', 'Harris', 23, '50 Highland Pike Road, 3', '787d941078d5f393ebf68b6026a139a7', '$2y$10$FySScbc71fpAlIzQ2f47J.lDhb0YaNp9xBe25.q4pWlKjSoj.oPDy'),
-('jbrown@gmail.com', 'John', 'Brown', 24, '237 Old Hope Road,Kingston', 'fc4567a7c609b4e6e264e97079386963', '$2y$10$8qCJvZzM048wAC5Hh28.1.M1ZNLqAxd6T0Byu87Wkmu28qLUmhrVm'),
-('sueJames@hotmail.com', 'Susan', 'James', 32, '62 Lakeland Drive,Greendale', 'a1173cc1f3125ba4eba451e71a363257', '$2y$10$ZXMgSVz.CmMNZEAlAyup4ewbukZNwIS8HtanQOS9R36iu93Y/RdYW'),
-('wsmith@gmail.com', 'Will', 'Smith', 22, '94 Old Hope Road,Kingston', '9b8a421bff5f30d20f118185eb6e4523', '$2y$10$gJPcVacAdi6s7Yn8Y4QuWOKLGp375.UsVu9k3MvaACHcRxIJbC3BG'),
-('tbrown@hotmail.com', 'Tanya', 'Brown', 32, '240 Old Hope Road,Kingston', '6e73a1d9fd95715c927c26822445d8d1', '$2y$10$.zk4Ckk3rpUpUrqFqKMwZ.NwMcbhAwhgnGyfdqKFWTFtpH2GKN2nu');
+('Lharris@gmail.com', 'Liz', 'Brown', 23, '61 Lakeland Drive,Greendale', '6e73a1d9fd95715c927c26822445d8d1', 'f30aa7a662c728b7407c54ae6bfd27d1'),
+('idnarosirrah@gmail.com', 'Orandi', 'Harris', 23, '50 Highland Pike Road, 3', '787d941078d5f393ebf68b6026a139a7', 'f30aa7a662c728b7407c54ae6bfd27d1');
+COMMIT;
 
 -- --------------------------------------------------------
 
