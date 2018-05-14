@@ -16,44 +16,13 @@
 	}	
 
 	
-
-	function processFormData($value1,$value2,$value3,$value4,$value5,$value6,$value7,$errFlag){
-		$response= 0;//Initializing $response variable
-		if($value1=="" && $value2 =="" && $value3 == "" && $value4 == "" && $value5 == "" && $value6 == "" && $value7 == "")
-			{
-				return $response; //If the values are empty return 0 
-			}else if($errFlag == 1){
-				return $response; //If an error occurs return the value in $response
-			}
-			else{
-				$response = 1;//If the response is 1 set session values
-				$_SESSION['user_info'] = array(
-				'userFirstName' => $value1, 
-				'userLastName' => $value2,
-				'userPassword' => $value3,
-				'userEmail' => $value4,
-				'userAge' => $value5,
-				'userAddress' => $value6,
-				'userCreditCrdNum' => $value7
-				);
-				return $response;//Return response value
-			}
-	}
-	
-	
-
 	if($_SERVER["REQUEST_METHOD"] == "POST"){
 		if(isset($_POST['loginBtn']))
 			{
 						$userName = $_POST['username'];
 						$password = $_POST['password'];
 						$hash_password = md5($password);
-						//Define variables for database access
-						$DB_host = "localhost";
-						$DB_user = "root";
-						$DB_pass = "";
-						$DB_name = "Airlines_DB";
-
+						
 						try
 						{
 								//Set SQL statement using named parameters
@@ -71,7 +40,6 @@
 										$firstname = $_SESSION['users'][0]['firstName'];
 										echo "<script src='https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js'></script>";
 										echo "<script type='text/javascript' src='profile.js'></script>";
-									//	header("Refresh: 4; url=flight.php");
 								}
 								else{
 										echo "<script>alert('Invalid userID or password!');</script>";
@@ -92,21 +60,9 @@
 						$stmt = null;//Close connection to db
  						$DBcon = null;
 			}
-			
+		if(isset($_POST['bookBtn'])){
 
-	}
-
-
-
-			
-
-		
-
-			
-			
-			/*
-			else if(isset($_POST['bookBtn'])){
-				//Collect and clean booking data here
+			//Collect and clean booking data here
 				$tripType = cleanInputs($_POST['tripType']);
 				$deptCity = cleanInputs( $_POST['departure']);
 				$arrCity = cleanInputs($_POST['arrival']);
@@ -123,20 +79,14 @@
 					'returnDate' => $rDay,
 					'passenger' => $noOfpassenger,
 				);
-				
-				//error not outputing trip type
-				$m = $_SESSION['book_info']['tripType'];
-				
 				echo "<br><br><br><br>";
-				echo  $m; 
+				echo "<span class='alert alert-success'>You have selected ".$tripType." redirecting.....</span>"; 
 				
 				//direct user to flight page
-				exit(header("Location:flight.php"));
+				header("Refresh:3; url=flight.php");
 				
 			} //end if
-			
-	} // end if post
-	*/
+	}
 ?>
 
 

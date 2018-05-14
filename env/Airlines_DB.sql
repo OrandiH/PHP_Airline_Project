@@ -128,34 +128,7 @@ INSERT INTO `flight` (`flightID`, `flightName`, `airlineName`, `depatureCity`, `
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `flight_cost`
---
 
-CREATE TABLE `flight_cost` (
-  `flightID` varchar(30) NOT NULL,
-  `cost` float NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
---
--- Dumping data for table `flight_cost`
---
-
-INSERT INTO `flight_cost` (`flightID`, `cost`) VALUES
-('FLG1001', 400),
-('FLG1002', 300),
-('FLG1003', 450),
-('FLG1004', 315.23),
-('FLG1005', 219.27),
-('FLG1006', 321),
-('FLG1007', 250),
-('FLG1008', 300),
-('FLG1009', 270),
-('FLG1010', 400);
-
---
--- Indexes for dumped tables
---
 
 --
 -- Indexes for table `admin`
