@@ -31,19 +31,19 @@
 	//---------------------------------------------------------------------------------------//
 	
 	//set local login variables empty 
-	$username = $pswd = $login = $display = $msg = "";
+	$username = $password = $login = $display = $msg = "";
 	//set local payment variables empty 
 	$payment = $discount = $no_Of_Person = $ticket_Cost = $confirmNum = "";
 	
 	//define variables and set to empty values
-	$fname = $lname = $email = $address = $cardType =  $cardNum = "";
-	$fnameErr = $lnameErr = $emailErr = $addressErr = $cardTypeErr =  $cardNumErr = "";
+	$fname = $lname = $email = $address = $cardNum = "";
+	$fnameErr = $lnameErr = $emailErr = $addressErr =  $cardNumErr = "";
 	$error = false;
 	
 	//local flight variables empty
 	$trip = $depCity = $arrCity = $dDate = $rDate = $flightId = $flightName = "";
-	
-	//local flight variables to session
+	if(isset($_SESSION['flight_info']) && isset($_SESSION['users'])){
+		//local flight variables to session
 	$flightId = $_SESSION['flight_info']['flightId'];
 	$flightName = $_SESSION['flight_info']['flightName'];
 	$depCity = $_SESSION['flight_info']['departure'];
@@ -67,15 +67,11 @@
 	$confirmNum = rand(10101100011, 1);
 	
 	//set local variables using sesssion
-	//$username = $_SESSION['user_info']['userEmail'];
-	//$pswd = $_SESSION['user_info']['userPassword'];
-	
-	$username ='pb@gmail.com';
-	$pswd ='pass1';
-	
+	$username = $_SESSION['users'][0]['userName'];
+	$password = $_SESSION['users'][0]['password'];
 	
 	//check if customer exist 
-	if ($username != "" && $pswd != "")
+	if ($username != "" && $password != "")
 	{
 		//registered customer discount calculation
 		$discount = processDiscount($ticket_Cost);
@@ -84,24 +80,16 @@
 		//varibles for payment session
 		try {
 			//database connection
-			include("connection.php");
+			include("db.php");
 			
-			//search parameters
-			$string1 = "select firstName,lastName,credit_card_Num";
-			//where parameters
-			$string2 = "userName='$username' and password='$pswd'";
-				
-			//search database for matchig flights
-			$query = "$string1 from customer where $string2";					
-			$stmt = $conn->prepare($query);
-			$stmt->bindParam('userName', $username, PDO::PARAM_STR);
-			$stmt->bindValue('password', $pswd, PDO::PARAM_STR);
+			$stmt = $DBcon->prepare("SELECT firstName,lastName,credit_card_Num FROM customer WHERE userName=:username and password=:password");
+			$stmt->bindParam(':username', $username);
+			$stmt->bindParam(':password', $password);	
 			$stmt->execute();
 			$count = $stmt->rowCount();
 			$row   = $stmt->fetch(PDO::FETCH_ASSOC);
-			
 			//validates if matching user/customer was found
-			if($count == 1 && !empty($row)) 
+			if($count == 1) 
 			{
 				$fname = $row['firstName'];
 				$lname = $row['lastName'];
@@ -113,10 +101,10 @@
 				$sql2 = "INSERT INTO customer_payment (userName,confirmationNum,amount_received) VALUES 
 				('$username','$confirmNum','$payment')";
 				echo "<br><br><br>";
-				echo $confirmNum;
+				
 				//execute query commands
-				$conn->exec($sql1);
-				$conn->exec($sql2);
+				$DBcon->exec($sql1);
+				$DBcon->exec($sql2);
 			} //end if
 			else
 			{
@@ -129,7 +117,7 @@
 			unset($sq2);
 			
 			//close database connection
-			$conn = null;
+			$DBcon = null;
 			
 			//set login status for payment
 			$login = 1;
@@ -140,136 +128,18 @@
 			$msg = '<label style="color:red; font-size: 25px; margin: auto;">Error :' .$e->getMessage(). '</label>';
 		} //end catch
 			
-	} //end if
+	}
+ } //end if
 	else 
 	{
+		header("location:guestPayment.php");
 		//set login status for payment
 		$login = 0;
 		//show non-user form
 		$display = 1;
-					
-		if ($_SERVER["REQUEST_METHOD"] == "POST") 
-		{		
-			$fname = Clean_Data($_POST["fname"]);
-			$lname = Clean_Data($_POST["lname"]);
-			$email = Clean_Data($_POST["email"]);
-			$address = Clean_Data($_POST["address"]);
-			$cardType = Clean_Data($_POST["cardType"]);
-			$cardNum = Clean_Data($_POST["cardNum"]);
-						
-			//------------------------ Validate Form Data --------------------------------------------------------//
-			if(isset($_POST['paymentBtn']))
-			{
-				//first name validation
-				if (empty($_POST["fname"]))
-				{
-					$fnameErr = "*FIRST NAME is required...!";
-					$error = true;
-				} 
-				else if(preg_match("/^([A-Z]{1})([A-Za-z-])?/", $_POST["fname"]) == false)
-				{
-					$fnameErr = "*First name must begin with a CAPITAL letter...!";	
-					$error = true;
-				}
-				else if (strlen($_POST["fname"]) > 30)
-				{
-					$fnameErr = "*First name must be 30 characters or less...!";
-					$error = true;					
-				} //end else
-					
-				//last name validation
-				if (empty($_POST["lname"]))
-				{
-					$lnameErr = "*LAST NAME is required...!";
-					$error = true;
-				} 
-				else if(preg_match("/^([A-Z]{1})([A-Za-z-])?/", $_POST["lname"]) == false)
-				{
-					$lnameErr = "*Last name MUST begin with a CAPITAL letter...!";	
-					$error = true;
-				}
-				else if (strlen($_POST["lname"]) > 30)
-				{
-					$lnameErr = "*Last name MUST be 30 characters or less...!";
-					$error = true;					
-				} //end else
-					
-				//email validation
-				if (empty($_POST["email"]))
-				{
-					$emailErr = "*EMAIL is required...!";
-					$error = true;
-				} 
-				else if (filter_var($_POST["email"], FILTER_VALIDATE_EMAIL) == false)
-				{
-					$emailErr = "*Invalid email format...!";
-					$error = true;
-				} //end else
-					
-				//address validation
-				if (empty($_POST["address"]))
-				{
-					$addressErr = "*ADDRESS is required...!";
-					$error = true;
-				} //end if
-				else if (strlen($_POST["address"]) > 50)
-				{
-					$addressErr = "*Address MUST be 50 characters or less...!";
-					$error = true;					
-				} //end else
-					
-				//card type validation
-				if (empty($_POST["cardType"]))
-				{
-					$cardTypeErr = "*CARD TYPE is required...!";
-					$error = true;
-				} //end if
-				
-				//credit card number validation
-				if (empty($_POST["cardNum"]))
-				{
-					$cardNumErr = "*CARD NUMBER is required...!";
-					$error = true;
-				} //end if
-				
-				//check if all inputs were valid
-				if (!$error)
-				{
-					//hide non-user payment form 
-					$display = 0;
-					//no discount for non-registered customer
-					$payment = flightCost($no_Of_Person, $ticket_Cost);			
-				} //end 													
-				
-			} //end if charge isset
-			
-		} //end if  post
-		
-	} //end else	
-	
-	//terminating login
-	if(isset($_POST['logout']))
-	{
-		/*
-		//destroy the session
-		session_destroy();
-		session_unset();
-		//destroy the cookie (empty the value setting the time limit to zero)
-		setcookie('user', '', 0);
-		setcookie('password', '', 0);
-		*/
-		//redirect home page
-		exit(header("Location:index.php"));
-	}
-	else
-	{
-		//redirect to the welcome page
-		//header("Location:index.php");
-	} //end else
-		
+	}	
 	echo"<br>";
 	echo $msg;
-	
 ?>
 
 
@@ -377,7 +247,6 @@
 	</style>
 </head>
 <body>
-	
 	<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top" role="navigation">
 	    <div class="container">
 	        <h3>FLIGHT PAYMENT</h3>
@@ -387,8 +256,8 @@
 	        <div class="collapse navbar-collapse" id="exCollapsingNavbar">
 	            <ul class="nav navbar-nav flex-row justify-content-between ml-auto">
 	                <li class="nav-item">
-	                    <button type="submit" name="logout" class="btn btn-outline-primary">
-							<a href="index.php">Logout</a>
+	                    <button class="btn btn-outline-primary">
+							<a href="logoutCustomer.php">Back to home</a>
 						</button>
 	                </li>
 	            </ul>
@@ -405,10 +274,8 @@
 		<hr style="width: 500px; font-family:bookman;">
 	</div>
 	<br><br><br>
-	
-	<!------------------------------------------- non-user customer payment processing -------------------------------------------->
 	<?php
-		//form to collect not existing customer information
+		//form to collect non existing customer information
 		if( $login == 0 && $display  == 1)
 		{
 			echo "
@@ -424,7 +291,7 @@
 					<hr/><hr/>
 					<br>
 					<!-- form starts here -->
-					<form id='info' action='' method='POST'>
+					<form id='info' action='guestPayment.php' method='POST'>
 						<div class='form-row'>
 							<div class='col-6'>
 								<input type='text' class='form-control' placeholder='First Name' name='fname' value='$fname'>";
@@ -478,330 +345,10 @@
 		} //end if
 	?>
 	
-	<!--------------------- travel itinerary for oneway non-user --------------------------->
-	<?php
-		if( $login == 0 && $display  == 0 && $trip == "oneway")
-		{
-			echo "
-				<div class='table-responsive' style='display: flex; flex-flow: row wrap; justify-content: center;'>
-					<table class='table' style='background-color: white; width: 70%;'>
-						<tr> 
-							<th>
-								PREPARED FOR &nbsp &nbsp $lname / $fname
-								<br><br>
-								<p>AIRLINE RESERVATION CODE &nbsp &nbsp $flightId-11001</p>
-								<p>CONFIRMATION NUMBER &nbsp &nbsp $confirmNum</p>
-							</th>
-						</tr>
-						<tr> 
-							<td>
-								<p> 
-									<img src='img/plane.png' alt='airplane' width='50px' height='50px'> &nbsp &nbsp 
-									DEPARTURE DATE &nbsp &nbsp $dDate &nbsp 
-									Please verify flight time Prior to departure
-								</p>
-								
-							</td>
-						</tr>
-						<tr> 
-							<td style='background-color: #D3D3D3;'>
-								<p> 
-									$flightName
-								</p>
-								<p>
-									Duaration: N/A
-								</p>
-								<p>
-									Class: N/A
-								</p>
-								<p>
-									Status: Confirmed
-								</p>
-							</td>
-							<td>
-								<p> 
-									Departing At: $depCity 
-								</p>
-								<p> 
-									Departing time: N/A
-								</p>
-								<p> 
-									Terminal: N/A
-								</p>
-							</td>
-							<td>
-								<p> 
-									Arrivin At: $arrCity
-								</p>
-								<p> 
-									Departing time: N/A
-								</p>
-								<p> 
-									Terminal: N/A
-								</p>
-							</td>
-							<td>
-								<p> 
-									Aircraft: $flightId
-								</p>
-								<p> 
-									Distance (in Miles): N/A
-								</p>
-								<p> 
-									Stop(s): 0
-								</p>
-								<p> 
-									Meal: Dinner, Breakfast
-								</p>
-							</td>
-						</tr>
-						<tr> 
-							<td>
-								<br>
-							<td>
-						</tr>
-						<tr style='background-color: #D3D3D3;'> 
-							<td>
-								Passenger Name: &nbsp &nbsp $lname / $fname
-							<td>
-							<td>
-								Seats: Check-in Required
-							<td>
-						</tr>
-						<tr style='background-color: #ADD8E6;'> 
-							<td>
-								<p>
-									Notes: &nbsp &nbsp AIR FAIR IS INCLUSIVE OF TAXES
-								</p>
-								<p>
-									Trip type: &nbsp &nbsp $trip
-								</p>
-								<p>
-									Passenger(s): &nbsp &nbsp $no_Of_Person
-								</p>
-								<p>
-									Cost: &nbsp &nbsp $payment
-								</p>
-							<td>
-							<td>
-								<p>
-									PAYMENT INFORMATION
-								</p>
-								<p>
-									Card type: &nbsp &nbsp $cardType
-								</p>
-								<p>
-									Account #: &nbsp &nbsp $cardNum
-								</p>
-							<td>
-						</tr>
-					</table>
-					
-					<br><br>
-					<div class='col-xs-12' style='margin-left: 1150px;'>
-						<button type='button' class='btn btn-success' name='printBtn' onclick='printpage()'>Print</button>
-					</div>
-					<br><br>
-				</div>
-			";
-		} //end if
-	?>
 	
-	<!--------------------- travel itinerary for round trip non-user --------------------------->
-	<?php
-		if( $login == 0 && $display  == 0 && $trip == "round trip")
-		{
-			echo "
-				<div class='table-responsive' style='display: flex; flex-flow: row wrap; justify-content: center;'>
-					<table class='table' style='background-color: white; width: 70%;'>
-						<tr> 
-							<th>
-								PREPARED FOR &nbsp &nbsp $lname / $fname
-								<br><br>
-								<p>AIRLINE RESERVATION CODE &nbsp &nbsp $flightId-11001</p>
-								<p>CONFIRMATION NUMBER &nbsp &nbsp $confirmNum</p>
-							</th>
-						</tr>
-						<tr> 
-							<td>
-								<p> 
-									<img src='img/plane.png' alt='airplane' width='50px' height='50px'> &nbsp &nbsp 
-									DEPARTURE DATE &nbsp &nbsp $dDate &nbsp 
-									Please verify flight time Prior to departure
-								</p>
-								
-							</td>
-						</tr>
-						<tr> 
-							<td style='background-color: #D3D3D3;'>
-								<p> 
-									$flightName
-								</p>
-								<p>
-									Duaration: N/A
-								</p>
-								<p>
-									Class: N/A
-								</p>
-								<p>
-									Status: Confirmed
-								</p>
-							</td>
-							<td>
-								<p> 
-									Departing At: $depCity 
-								</p>
-								<p> 
-									Departing time: N/A
-								</p>
-								<p> 
-									Terminal: N/A
-								</p>
-							</td>
-							<td>
-								<p> 
-									Arrivin At: $arrCity
-								</p>
-								<p> 
-									Departing time: N/A
-								</p>
-								<p> 
-									Terminal: N/A
-								</p>
-							</td>
-							<td>
-								<p> 
-									Aircraft: $flightId
-								</p>
-								<p> 
-									Distance (in Miles): N/A
-								</p>
-								<p> 
-									Stop(s): 0
-								</p>
-								<p> 
-									Meal: Dinner, Breakfast
-								</p>
-							</td>
-						</tr>
-						<tr> 
-							<td>
-								<br>
-							<td>
-						</tr>
-						<tr style='background-color: #D3D3D3;'> 
-							<td>
-								Passenger Name: &nbsp &nbsp $lname / $fname
-							<td>
-							<td>
-								Seats: Check-in Required
-							<td>
-						</tr>
-						<!---- second section ---------->
-						<tr> 
-							<td>
-								<p> 
-									<img src='img/plane.png' alt='airplane' width='50px' height='50px'>
-									&nbsp &nbsp RETURN DATE &nbsp &nbsp $rDate
-									&nbsp Please verify flight time Prior to departure
-								</p>
-								
-							</td>
-						</tr>
-						<tr> 
-							<td style='background-color: #D3D3D3;'>
-								<p> 
-									$flightName
-								</p>
-								<p>
-									Duaration: N/A
-								</p>
-								<p>
-									Class: N/A
-								</p>
-								<p>
-									Status: Confirmed
-								</p>
-							</td>
-							<td>
-								<p> 
-									Departing At: $arrCity
-								</p>
-								<p> 
-									Departing time: N/A
-								</p>
-								<p> 
-									Terminal: N/A
-								</p>
-							</td>
-							<td>
-								<p> 
-									Arrivin At: $depCity
-								</p>
-								<p> 
-									Departing time: N/A
-								</p>
-								<p> 
-									Terminal: N/A
-								</p>
-							</td>
-							<td>
-								<p> 
-									Aircraft: $flightId
-								</p>
-								<p> 
-									Distance (in Miles): N/A
-								</p>
-								<p> 
-									Stop(s): 0
-								</p>
-								<p> 
-									Meal: Dinner, Breakfast
-								</p>
-							</td>
-						</tr>
-						<tr style='background-color: #ADD8E6;'> 
-							<td>
-								<p>
-									Notes: &nbsp &nbsp AIR FAIR IS INCLUSIVE OF TAXES
-								</p>
-								<p>
-									Trip type: &nbsp &nbsp $trip
-								</p>
-								<p>
-									Passenger(s): &nbsp &nbsp $no_Of_Person
-								</p>
-								<p>
-									Cost: &nbsp &nbsp $payment
-								</p>
-							<td>
-							<td>
-								<p>
-									PAYMENT INFORMATION
-								</p>
-								<p>
-									Card type: &nbsp &nbsp $cardType
-								</p>
-								<p>
-									Account #: &nbsp &nbsp $cardNum
-								</p>
-							<td>
-						</tr>
-					</table>
-					
-					<br><br>
-					<div class='col-xs-12' style='margin-left: 1150px;'>
-						<button type='button' class='btn btn-success' name='printBtn' onclick='printpage()'>Print</button>
-					</div>
-					<br><br>
-				</div>
-			";
-		} //end if
-	?>
 	
-	<!------------------------------------------- user customer payment processing -------------------------------------------->
-	<!--------------------- travel itinerary for oneway user customer --------------------------->
 	<?php
+	//Valid user for oneway
 		if( $login == 1 && $trip == "oneway")
 		{
 			echo "
@@ -818,7 +365,6 @@
 						<tr> 
 							<td>
 								<p> 
-									<img src='img/plane.png' alt='airplane' width='50px' height='50px'> &nbsp &nbsp 
 									DEPARTURE DATE &nbsp &nbsp $dDate &nbsp 
 									Please verify flight time Prior to departure
 								</p>
@@ -853,7 +399,7 @@
 							</td>
 							<td>
 								<p> 
-									Arrivin At: $arrCity
+									Arriving At: $arrCity
 								</p>
 								<p> 
 									Departing time: N/A
@@ -913,10 +459,7 @@
 									PAYMENT INFORMATION
 								</p>
 								<p>
-									Card type: &nbsp &nbsp $cardType
-								</p>
-								<p>
-									Account #: &nbsp &nbsp $cardNum
+									Card #(in hash format): &nbsp &nbsp $cardNum
 								</p>
 							<td>
 						</tr>
@@ -932,8 +475,8 @@
 		} //end if
 	?>
 	
-	<!--------------------- travel itinerary for round trip user customer --------------------------->
 	<?php
+	//Valid user for round trip
 		if( $login == 1 && $trip == "round trip")
 		{
 			echo "
@@ -943,201 +486,20 @@
 							<th>
 								PREPARED FOR &nbsp &nbsp $lname / $fname
 								<br><br>
-								<p>AIRLINE RESERVATION CODE &nbsp &nbsp $flightId-11001</p>
+								<p>AIRLINE RESERVATION CODE<br/> $flightId-11001</p>
 								<p>CONFIRMATION NUMBER &nbsp &nbsp $confirmNum</p>
 							</th>
 						</tr>
-						<tr> 
-							<td>
-								<p> 
-									<img src='img/plane.png' alt='airplane' width='50px' height='50px'> &nbsp &nbsp 
-									DEPARTURE DATE &nbsp &nbsp $dDate &nbsp 
-									Please verify flight time Prior to departure
-								</p>
-								
-							</td>
-						</tr>
-						<tr> 
-							<td style='background-color: #D3D3D3;'>
-								<p> 
-									$flightName
-								</p>
-								<p>
-									Duaration: N/A
-								</p>
-								<p>
-									Class: N/A
-								</p>
-								<p>
-									Status: Confirmed
-								</p>
-							</td>
-							<td>
-								<p> 
-									Departing At: $depCity 
-								</p>
-								<p> 
-									Departing time: N/A
-								</p>
-								<p> 
-									Terminal: N/A
-								</p>
-							</td>
-							<td>
-								<p> 
-									Arrivin At: $arrCity
-								</p>
-								<p> 
-									Departing time: N/A
-								</p>
-								<p> 
-									Terminal: N/A
-								</p>
-							</td>
-							<td>
-								<p> 
-									Aircraft: $flightId
-								</p>
-								<p> 
-									Distance (in Miles): N/A
-								</p>
-								<p> 
-									Stop(s): 0
-								</p>
-								<p> 
-									Meal: Dinner, Breakfast
-								</p>
-							</td>
-						</tr>
-						<tr> 
-							<td>
-								<br>
-							<td>
-						</tr>
-						<tr style='background-color: #D3D3D3;'> 
-							<td>
-								Passenger Name: &nbsp &nbsp $lname / $fname
-							<td>
-							<td>
-								Seats: Check-in Required
-							<td>
-						</tr>
-						<!---- second section ---------->
-						<tr> 
-							<td>
-								<p> 
-									<img src='img/plane.png' alt='airplane' width='50px' height='50px'>
-									&nbsp &nbsp RETURN DATE &nbsp &nbsp $rDate
-									&nbsp Please verify flight time Prior to departure
-								</p>
-								
-							</td>
-						</tr>
-						<tr> 
-							<td style='background-color: #D3D3D3;'>
-								<p> 
-									$flightName
-								</p>
-								<p>
-									Duaration: N/A
-								</p>
-								<p>
-									Class: N/A
-								</p>
-								<p>
-									Status: Confirmed
-								</p>
-							</td>
-							<td>
-								<p> 
-									Departing At: $arrCity
-								</p>
-								<p> 
-									Departing time: N/A
-								</p>
-								<p> 
-									Terminal: N/A
-								</p>
-							</td>
-							<td>
-								<p> 
-									Arrivin At: $depCity
-								</p>
-								<p> 
-									Departing time: N/A
-								</p>
-								<p> 
-									Terminal: N/A
-								</p>
-							</td>
-							<td>
-								<p> 
-									Aircraft: $flightId
-								</p>
-								<p> 
-									Distance (in Miles): N/A
-								</p>
-								<p> 
-									Stop(s): 0
-								</p>
-								<p> 
-									Meal: Dinner, Breakfast
-								</p>
-							</td>
-						</tr>
-						<tr style='background-color: #ADD8E6;'> 
-							<td>
-								<p>
-									Notes: &nbsp &nbsp AIR FAIR IS INCLUSIVE OF TAXES
-								</p>
-								<p>
-									Trip type: &nbsp &nbsp $trip
-								</p>
-								<p>
-									Passenger(s): &nbsp &nbsp $no_Of_Person
-								</p>
-								<p>
-									Discount: &nbsp &nbsp $discount
-								</p>
-								<p>
-									Cost: &nbsp &nbsp $payment
-								</p>
-							<td>
-							<td>
-								<p>
-									PAYMENT INFORMATION
-								</p>
-								<p>
-									Card type: &nbsp &nbsp $cardType
-								</p>
-								<p>
-									Account #: &nbsp &nbsp $cardNum
-								</p>
-							<td>
-						</tr>
-					</table>
-					
-					<br><br>
-					<div class='col-xs-12' style='margin-left: 1150px;'>
-						<button type='button' class='btn btn-success' name='printBtn' onclick='printpage()'>Print</button>
-					</div>
-					<br><br>
-				</div>
-			";
+						</table>
+				</div>";
 		} //end if
 	?>
 	
-	<!---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------> 
-	<script language="javascript" type="text/javascript">
-        function printpage() {
-           window.print();
-        }
-    </script>
 	
-	<!-- jQuery first, then Bootstrap JS. -->
+	<!--- jQuery first, then Bootstrap JS. -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://cdn.rawgit.com/twbs/bootstrap/v4-dev/dist/js/bootstrap.js"></script>
-	<!---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------> 
+	
 	
 </body>
 </html>
